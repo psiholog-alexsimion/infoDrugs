@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title id="pageTitle">Straight Up — Drugs, Explained Honestly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#10111a;
+    --bg-alt:#181a26;
+    --bg-card:#1d1f2e;
+    --text:#f4f1ea;
+    --text-dim:#9b98ab;
+    --cyan:#3ecfb0;
+    --coral:#e2665b;
+    --yellow:#e3ac4b;
+    --line:rgba(244,241,234,0.12);
+    --radius:18px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{ font-family:'Space Grotesk',system-ui,sans-serif; letter-spacing:-0.01em; }
+  .mono{ font-family:'IBM Plex Mono',monospace; letter-spacing:0.02em; }
+  a{color:inherit;}
+  img,svg{display:block; max-width:100%;}
+  ::selection{ background:var(--cyan); color:#0a0b12; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+
+  .wrap{ max-width:560px; margin:0 auto; padding:0 22px; }
+  section{ padding:64px 0 8px; position:relative; scroll-margin-top:74px; }
+
+  button:focus-visible, a:focus-visible{
+    outline:2px solid var(--cyan); outline-offset:3px; border-radius:4px;
+  }
+
+  /* ---------- Nav / progress dot rail ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(16,17,26,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:560px; margin:0 auto; padding:12px 22px;
+    display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;
+  }
+  .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:17px; flex-shrink:0; }
+  .brand span{ color:var(--cyan); }
+  .topbar-right{ display:flex; align-items:center; gap:8px; }
+  .helpbtn{
+    font-family:'IBM Plex Mono'; font-size:11.5px; font-weight:600;
+    color:var(--bg); background:var(--yellow); border:none;
+    padding:13px 16px; border-radius:100px; text-decoration:none;
+    letter-spacing:0.03em; display:inline-flex; align-items:center; white-space:nowrap;
+    transition:transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .langtoggle{
+    display:flex; align-items:center; gap:2px; background:var(--bg-alt);
+    border:1px solid var(--line); border-radius:100px; padding:3px;
+  }
+  .langtoggle button{
+    font-family:'IBM Plex Mono'; font-size:11px; font-weight:600;
+    padding:11px 10px; border-radius:100px; border:none; background:transparent;
+    color:var(--text-dim); cursor:pointer; letter-spacing:0.02em;
+  }
+  .langtoggle button.active{ background:var(--cyan); color:var(--bg); }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding-top:38px; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono'; font-size:11.5px; color:var(--cyan);
+    text-transform:uppercase; letter-spacing:0.12em;
+    border:1px solid rgba(0,229,201,0.35); border-radius:100px;
+    padding:6px 12px; margin-bottom:22px;
+  }
+  .dot{ width:6px; height:6px; border-radius:50%; background:var(--cyan); animation:blink 2s infinite; flex-shrink:0; }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+
+  .hero h1{
+    font-size:44px; line-height:1.03; font-weight:700; margin:0 0 18px;
+  }
+  .hero h1 em{ font-style:normal; color:var(--coral); }
+  .hero p{ color:var(--text-dim); font-size:16.5px; max-width:46ch; margin:0 0 30px; }
+
+  .synapse{
+    position:relative; height:220px; margin:0 -22px 8px;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .synapse svg{ width:100%; height:100%; }
+  .node{ fill:var(--cyan); }
+  .pulseline{ stroke:var(--coral); stroke-width:1.4; fill:none; opacity:0.55; }
+
+  .hero-scroll{
+    display:flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono'; font-size:12px; color:var(--text-dim);
+    margin-top:6px;
+  }
+  .hero-scroll svg{ width:14px; height:14px; animation:bob 1.6s infinite; }
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(4px);} }
+
+  /* ---------- Section headers ---------- */
+  .kicker{
+    font-family:'IBM Plex Mono'; font-size:11.5px; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--text-dim); margin-bottom:10px;
+  }
+  .kicker.c-cyan{color:var(--cyan);} .kicker.c-coral{color:var(--coral);} .kicker.c-yellow{color:var(--yellow);}
+  h2.sec-title{ font-size:27px; font-weight:700; margin:0 0 16px; }
+  .lede{ color:var(--text-dim); font-size:15.5px; margin:0 0 26px; max-width:50ch; }
+
+  /* ---------- Brain / reward section ---------- */
+  .brain-card{
+    background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; margin-bottom:14px; transition:border-color 0.18s ease, transform 0.18s ease;
+  }
+  .brain-row{ display:flex; gap:14px; align-items:flex-start; }
+  .brain-num{
+    font-family:'IBM Plex Mono'; font-size:12px; color:var(--bg);
+    background:var(--cyan); width:26px; height:26px; min-width:26px;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:700; margin-top:2px;
+  }
+  .brain-row h3{ font-size:16.5px; margin:0 0 6px; }
+  .brain-row p{ color:var(--text-dim); font-size:14.5px; margin:0; }
+
+  /* ---------- Myth vs fact flip cards ---------- */
+  .flip-grid{ display:grid; gap:14px; }
+  .flip-card{
+    perspective:1200px; height:236px; cursor:pointer;
+  }
+  .flip-inner{
+    position:relative; width:100%; height:100%;
+    transition:transform 0.55s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{
+    position:absolute; inset:0; -webkit-backface-visibility:hidden; backface-visibility:hidden;
+    border-radius:var(--radius); padding:20px; display:flex; flex-direction:column; justify-content:space-between;
+    border:1px solid var(--line); overflow:hidden;
+  }
+  .flip-front{ background:var(--bg-card); }
+  .flip-back{ background:linear-gradient(155deg,#132520,#0f1a17); transform:rotateY(180deg); border-color:rgba(0,229,201,0.35); }
+  .flip-tag{ font-family:'IBM Plex Mono'; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--coral); }
+  .flip-back .flip-tag{ color:var(--cyan); }
+  .flip-claim{ font-size:16px; font-weight:600; line-height:1.28; }
+  .flip-answer{ font-size:14px; color:var(--text-dim); line-height:1.4; }
+  .flip-tap{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-dim); }
+
+  /* ---------- Substance cards ---------- */
+  .sub-card{
+    background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; margin-bottom:14px; transition:border-color 0.18s ease, transform 0.18s ease;
+  }
+  .sub-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .sub-chip{
+    width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    font-size:16px; flex-shrink:0;
+  }
+  .sub-card h3{ font-size:17px; margin:0; }
+  .sub-legal{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-dim); margin-left:auto; text-align:right; }
+  .sub-card p{ font-size:14px; color:var(--text-dim); margin:0 0 10px; }
+  .sub-list{ list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+  .sub-list li{ font-size:13.5px; color:var(--text); display:flex; gap:8px; }
+  .sub-list li::before{ content:"—"; color:var(--coral); flex-shrink:0; }
+
+  /* ---------- Scenario / refusal ---------- */
+  .scenario{
+    background:var(--bg-card); border-left:3px solid var(--yellow); border-radius:0 var(--radius) var(--radius) 0;
+    padding:18px 20px; margin-bottom:14px; transition:background 0.18s ease, transform 0.18s ease;
+  }
+  .scenario .situ{ font-size:14.5px; color:var(--text-dim); margin:0 0 10px; font-style:italic; }
+  .script{
+    background:rgba(255,210,63,0.08); border:1px solid rgba(255,210,63,0.25); border-radius:12px;
+    padding:12px 14px; font-size:14.5px; font-weight:500;
+  }
+
+  /* ---------- Checklist ---------- */
+  .check-list{ display:grid; gap:10px; }
+  .check-item{
+    display:flex; gap:12px; align-items:flex-start;
+    background:var(--bg-alt); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+    font-size:14.5px; transition:border-color 0.18s ease, transform 0.18s ease;
+  }
+  .check-item svg{ width:18px; height:18px; flex-shrink:0; margin-top:1px; color:var(--coral); }
+
+  /* ---------- Emergency numbered ---------- */
+  .emg-box{
+    background:linear-gradient(155deg,#2a1220,#1a1119); border:1px solid rgba(255,84,112,0.4);
+    border-radius:var(--radius); padding:22px; margin-bottom:16px;
+  }
+  .emg-box .kicker{ color:var(--coral); }
+  .emg-step{ display:flex; gap:14px; padding:12px 0; border-top:1px solid rgba(244,241,234,0.08); }
+  .emg-step:first-of-type{ border-top:none; }
+  .emg-num{
+    font-family:'IBM Plex Mono'; font-weight:700; color:var(--coral); font-size:15px;
+    min-width:22px;
+  }
+  .emg-step p{ margin:0; font-size:14.5px; }
+  .emg-step strong{ display:block; margin-bottom:2px; font-size:15px; }
+
+  /* ---------- Help resources ---------- */
+  .help-card{
+    background:var(--bg-alt); border:1px solid var(--line); border-radius:16px;
+    padding:16px 18px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:10px;
+    transition:border-color 0.18s ease, transform 0.18s ease;
+  }
+  .help-card .help-text{ min-width:0; flex:1 1 auto; }
+  .help-card .htitle{ font-weight:600; font-size:15px; margin-bottom:2px; }
+  .help-card .hsub{ font-size:12.5px; color:var(--text-dim); }
+  .help-num{ font-family:'IBM Plex Mono'; font-size:14px; color:var(--cyan); white-space:nowrap; flex-shrink:0; }
+
+  /* ---------- Quiz ---------- */
+  .quiz-shell{
+    background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius); padding:22px; overflow:hidden;
+  }
+  .quiz-progress{ display:flex; gap:5px; margin-bottom:18px; }
+  .quiz-progress i{ flex:1; height:4px; border-radius:3px; background:var(--line); }
+  .quiz-progress i.done{ background:var(--cyan); }
+  .quiz-q{ font-size:17px; font-weight:600; margin:0 0 16px; }
+  .quiz-opts{ display:grid; gap:10px; }
+  .quiz-opt{
+    text-align:left; width:100%; background:var(--bg-card); border:1px solid var(--line); color:var(--text);
+    font-family:'Inter'; font-size:14.5px; padding:13px 15px; border-radius:12px; cursor:pointer;
+    transition:border-color 0.18s ease, background 0.18s ease;
+  }
+  .quiz-opt.correct{ border-color:var(--cyan); background:rgba(0,229,201,0.1); }
+  .quiz-opt.wrong{ border-color:var(--coral); background:rgba(255,84,112,0.1); }
+  .quiz-fb{ font-size:13.5px; color:var(--text-dim); margin-top:14px; padding-top:14px; border-top:1px solid var(--line); display:none; }
+  .quiz-fb.show{ display:block; }
+  .quiz-next{
+    margin-top:16px; width:100%; padding:13px; border-radius:12px; border:none;
+    background:var(--cyan); color:#0a0b12; font-family:'Space Grotesk'; font-weight:700; font-size:14.5px;
+    cursor:pointer; display:none; transition:transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .quiz-next.show{ display:block; }
+  .quiz-result{ text-align:center; display:none; }
+  .quiz-result.show{ display:block; }
+  .quiz-result .score{ font-family:'Space Grotesk'; font-size:48px; font-weight:700; color:var(--cyan); margin:6px 0; }
+  .quiz-result p{ color:var(--text-dim); font-size:14.5px; margin:0 0 18px; }
+  .quiz-retry{
+    background:none; border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:100px;
+    font-family:'IBM Plex Mono'; font-size:12.5px; cursor:pointer; transition:border-color 0.18s ease, background 0.18s ease;
+  }
+
+  footer{ padding:50px 0 60px; }
+  .disclaimer{
+    font-size:12.5px; color:var(--text-dim); border-top:1px solid var(--line); padding-top:22px; line-height:1.6;
+  }
+  .disclaimer strong{ color:var(--text); }
+
+  @media (min-width:600px){
+    .hero h1{ font-size:52px; }
+  }
+
+  /* ---------- Hover states (mouse/trackpad only — never sticks on touch) ---------- */
+  @media (hover: hover) and (pointer: fine){
+    .helpbtn:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(255,210,63,0.35); }
+    .langtoggle button:not(.active):hover{ color:var(--text); background:rgba(244,241,234,0.06); }
+    .brain-card:hover{ border-color:rgba(0,229,201,0.4); transform:translateY(-2px); }
+    .flip-card:hover .flip-face{ border-color:rgba(0,229,201,0.5); }
+    .flip-card:hover .flip-inner{ filter:brightness(1.04); }
+    .sub-card:hover{ border-color:rgba(244,241,234,0.28); transform:translateY(-2px); }
+    .scenario:hover{ background:#22243480; transform:translateX(3px); }
+    .check-item:hover{ border-color:rgba(255,84,112,0.4); transform:translateY(-1px); }
+    .help-card:hover{ border-color:rgba(0,229,201,0.4); transform:translateY(-2px); }
+    .quiz-opt:not(.correct):not(.wrong):hover{ border-color:var(--cyan); background:rgba(0,229,201,0.06); }
+    .quiz-next:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,229,201,0.35); }
+    .quiz-retry:hover{ border-color:var(--text-dim); background:rgba(244,241,234,0.06); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">straight<span>up</span></div>
+    <div class="topbar-right">
+      <div class="langtoggle" role="group" aria-label="Language / Limbă">
+        <button type="button" data-lang="en" class="active" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ro" aria-pressed="false">RO</button>
+      </div>
+      <a href="#help" class="helpbtn" data-i18n="helpbtn">GET HELP →</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow">NO LECTURES · JUST FACTS</span></div>
+    <h1 data-i18n="heroH1">Drugs.<br>The stuff people<br><em>don't</em> tell you straight.</h1>
+    <p data-i18n="heroP">Alcohol, vaping, weed, pills — you're going to hear about all of it before you're an adult. This is the honest version: how it actually works, what the real risks are, and what to say when you don't want in.</p>
+
+    <div class="synapse" aria-hidden="true">
+      <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
+        <g class="pulseline" id="lines"></g>
+        <g id="nodes"></g>
+      </svg>
+    </div>
+
+    <div class="hero-scroll">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      <span data-i18n="heroScroll">scroll — 10 min read</span>
+    </div>
+  </section>
+
+  <!-- BRAIN / WHY -->
+  <section id="brain">
+    <div class="kicker c-cyan" data-i18n="kicker01">01 · The science, simplified</div>
+    <h2 class="sec-title" data-i18n="title01">Why this stuff hooks people</h2>
+    <p class="lede" data-i18n="lede01">Every drug — including nicotine, alcohol, and caffeine — works on the same system in your brain. Understanding it makes the pressure make a lot more sense.</p>
+
+    <div class="brain-card">
+      <div class="brain-row">
+        <div class="brain-num">1</div>
+        <div><h3 data-i18n="brain1h3">Your brain has a reward system</h3><p data-i18n="brain1p">It releases a chemical called dopamine when something feels good — food, laughing with friends, winning a game. It's how your brain says "do that again."</p></div>
+      </div>
+    </div>
+    <div class="brain-card">
+      <div class="brain-row">
+        <div class="brain-num">2</div>
+        <div><h3 data-i18n="brain2h3">Drugs flood that system artificially</h3><p data-i18n="brain2p">They trigger way more dopamine than anything natural can — sometimes 2 to 10 times more. Your brain didn't evolve for that spike.</p></div>
+      </div>
+    </div>
+    <div class="brain-card">
+      <div class="brain-row">
+        <div class="brain-num">3</div>
+        <div><h3 data-i18n="brain3h3">Your brain is still under construction</h3><p data-i18n="brain3p">The part that handles judgment and impulse control — the prefrontal cortex — isn't finished developing until around age 25. That's why teen brains are more easily rewired by repeated use, and why the risk of long-term problems is higher the younger you start.</p></div>
+      </div>
+    </div>
+    <div class="brain-card">
+      <div class="brain-row">
+        <div class="brain-num">4</div>
+        <div><h3 data-i18n="brain4h3">It's not about "willpower"</h3><p data-i18n="brain4p">Once the brain adapts to a substance, it needs more of it to feel normal, and feels worse without it. That's chemistry, not a character flaw — which is exactly why prevention beats willing yourself out of it later.</p></div>
+      </div>
+    </div>
+    <div class="brain-card">
+      <div class="brain-row">
+        <div class="brain-num">5</div>
+        <div><h3 data-i18n="brain5h3">None of this makes it inevitable</h3><p data-i18n="brain5p">A still-developing brain means your risk is <em style="color:var(--coral); font-style:normal;">higher</em>, not that any outcome is fixed. Sleep, real connection with people, and having ways to handle stress all measurably lower that risk — this knowledge is a tool, not a life sentence.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY PEOPLE USE -->
+  <section id="why-use">
+    <div class="kicker c-yellow" data-i18n="kicker02">02 · The real reasons</div>
+    <h2 class="sec-title" data-i18n="title02">It's rarely just "for fun"</h2>
+    <p class="lede" data-i18n="lede02">Most people don't start using substances out of curiosity alone. Usually it's solving a problem — at least at first. Knowing the actual reason makes it easier to spot, in yourself or a friend.</p>
+
+    <div class="brain-card">
+      <div class="brain-row">
+        <div data-i18n="whyBlockA" style="width:100%;">
+        <h3 style="margin-bottom:8px;">Common reasons people reach for something</h3>
+        <ul class="sub-list">
+          <li>Numbing anxiety, stress, or something painful they don't want to feel</li>
+          <li>Wanting to fit in or not stand out from a friend group</li>
+          <li>Boredom, or not having another way to feel excitement</li>
+          <li>Trouble sleeping, focusing, or managing a diagnosed or undiagnosed condition</li>
+          <li>Curiosity, or testing limits — a normal part of growing up, even when the specific choice is risky</li>
+        </ul>
+        </div>
+      </div>
+    </div>
+    <div class="brain-card">
+      <div class="brain-row">
+        <div data-i18n="whyBlockB" style="width:100%;">
+        <h3 style="margin-bottom:8px;">Things that meet those same needs without the risk</h3>
+        <ul class="sub-list">
+          <li>A real conversation with someone you trust — the anxiety or stress doesn't go away by itself, but talking changes how heavy it feels</li>
+          <li>Physical movement — sport, walking, anything that raises your heart rate — hits some of the same reward pathways</li>
+          <li>Music, art, gaming, or any activity absorbing enough to actually fill boredom, not just distract from it</li>
+          <li>If sleep, focus, or mood have been off for weeks, that's worth a real conversation with a doctor — there may be an actual, treatable reason</li>
+        </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MYTH VS FACT -->
+  <section id="myths">
+    <div class="kicker c-cyan" data-i18n="kicker03">03 · Myth check</div>
+    <h2 class="sec-title" data-i18n="title03">Tap each card to flip it</h2>
+    <p class="lede" data-i18n="lede03">These are the lines you'll actually hear at parties, online, or from "that one friend." Here's what's really true.</p>
+
+    <div class="flip-grid" id="flipGrid"></div>
+  </section>
+
+  <!-- SUBSTANCE SNAPSHOTS -->
+  <section id="substances">
+    <div class="kicker c-yellow" data-i18n="kicker04">04 · Know what you're looking at</div>
+    <h2 class="sec-title" data-i18n="title04">The substances you'll actually run into</h2>
+    <p class="lede" data-i18n="lede04">No dosing info, no "how to" — just what each one is, and the risks that matter most at your age.</p>
+
+    <div id="subGrid"></div>
+  </section>
+
+  <!-- PEER PRESSURE -->
+  <section id="pressure">
+    <div class="kicker c-cyan" data-i18n="kicker05">05 · Real scenes, real lines</div>
+    <h2 class="sec-title" data-i18n="title05">What to actually say</h2>
+    <p class="lede" data-i18n="lede05">Saying no doesn't have to be a whole speech. Short, confident, and boring works best — it ends the conversation fast.</p>
+
+    <div id="scenarioGrid"></div>
+  </section>
+
+  <!-- WARNING SIGNS -->
+  <section id="signs">
+    <div class="kicker c-yellow" data-i18n="kicker06">06 · Pay attention to</div>
+    <h2 class="sec-title" data-i18n="title06">Signs something's off — in you or a friend</h2>
+    <p class="lede" data-i18n="lede06">Mood swings, wanting more privacy, sleeping oddly — a lot of this is just normal at 14 and doesn't mean anything on its own. Don't use this list to diagnose yourself. What's actually worth noticing is a real, sudden shift, or several of these showing up together.</p>
+
+    <div class="check-list" id="signsList"></div>
+    <p class="lede" data-i18n="signsNote" style="margin-top:16px; margin-bottom:0;">If you're worried about a friend, the goal isn't to build a case against them — it's to have a real conversation. "Hey, you've seemed off lately, is everything okay?" does more than confronting them with a list.</p>
+  </section>
+
+  <!-- EMERGENCY -->
+  <section id="emergency">
+    <div class="emg-box">
+      <div class="kicker" data-i18n="kicker07">07 · If something goes wrong</div>
+      <h2 class="sec-title" data-i18n="title07" style="margin-bottom:4px;">This could save a life</h2>
+      <p class="lede" data-i18n="lede07" style="margin-bottom:4px;">Many overdose deaths happen because people are scared to call for help. Many places have "Good Samaritan" laws designed to protect the person who calls from being charged for drug possession — it's worth knowing what applies where you live, but getting help should always come first.</p>
+      <div id="emgSteps"></div>
+    </div>
+  </section>
+
+  <!-- HELP -->
+  <section id="help">
+    <div class="kicker c-cyan" data-i18n="kicker08">08 · Talk to someone</div>
+    <h2 class="sec-title" data-i18n="title08">You don't have to figure this out alone</h2>
+    <p class="lede" data-i18n="lede08">A trusted adult — a parent, school counselor, coach, doctor — is always step one. The lines below are free and staffed by people who won't judge you. Confidentiality rules vary by service — most helplines won't share what you say, but ask directly at the start of the call if you want to be sure before you talk.</p>
+
+    <div id="helpList"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <div class="kicker c-cyan" data-i18n="kicker09">09 · Quick check</div>
+    <h2 class="sec-title" data-i18n="title09">See what stuck</h2>
+    <p class="lede" data-i18n="lede09">6 questions. No grade, no pressure — just a gut check.</p>
+
+    <div class="quiz-shell">
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizBody"></div>
+      <div class="quiz-result" id="quizResult">
+        <div class="kicker c-cyan" data-i18n="quizYourScore" style="text-align:center;">your score</div>
+        <div class="score" id="quizScore">0/6</div>
+        <p id="quizMsg"></p>
+        <button type="button" class="quiz-retry" id="quizRetry" data-i18n="quizRetryLabel">RETAKE ↺</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="disclaimer">
+      <strong data-i18n="footerLabel">Why this page exists:</strong> <span data-i18n="footerText">to give you honest, judgment-free facts before you need them. It's educational content, not medical or legal advice, and it's not a substitute for talking to a doctor, counselor, or a trusted adult about your specific situation. If you or someone you know is in immediate danger, contact local emergency services right away.</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ================= i18n data ================= */
+const T = {
+  en: {
+    pageTitle: `Straight Up — Drugs, Explained Honestly`,
+    helpbtn: `GET HELP →`,
+    eyebrow: `NO LECTURES · JUST FACTS`,
+    heroH1: `Drugs.<br>The stuff people<br><em>don't</em> tell you straight.`,
+    heroP: `Alcohol, vaping, weed, pills — you're going to hear about all of it before you're an adult. This is the honest version: how it actually works, what the real risks are, and what to say when you don't want in.`,
+    heroScroll: `scroll — 10 min read`,
+
+    kicker01: `01 · The science, simplified`, title01: `Why this stuff hooks people`,
+    lede01: `Every drug — including nicotine, alcohol, and caffeine — works on the same system in your brain. Understanding it makes the pressure make a lot more sense.`,
+    brain1h3: `Your brain has a reward system`,
+    brain1p: `It releases a chemical called dopamine when something feels good — food, laughing with friends, winning a game. It's how your brain says "do that again."`,
+    brain2h3: `Drugs flood that system artificially`,
+    brain2p: `They trigger way more dopamine than anything natural can — sometimes 2 to 10 times more. Your brain didn't evolve for that spike.`,
+    brain3h3: `Your brain is still under construction`,
+    brain3p: `The part that handles judgment and impulse control — the prefrontal cortex — isn't finished developing until around age 25. That's why teen brains are more easily rewired by repeated use, and why the risk of long-term problems is higher the younger you start.`,
+    brain4h3: `It's not about "willpower"`,
+    brain4p: `Once the brain adapts to a substance, it needs more of it to feel normal, and feels worse without it. That's chemistry, not a character flaw — which is exactly why prevention beats willing yourself out of it later.`,
+    brain5h3: `None of this makes it inevitable`,
+    brain5p: `A still-developing brain means your risk is <em style="color:var(--coral); font-style:normal;">higher</em>, not that any outcome is fixed. Sleep, real connection with people, and having ways to handle stress all measurably lower that risk — this knowledge is a tool, not a life sentence.`,
+
+    kicker02: `02 · The real reasons`, title02: `It's rarely just "for fun"`,
+    lede02: `Most people don't start using substances out of curiosity alone. Usually it's solving a problem — at least at first. This isn't about labeling anyone's reason, including yours — it's just easier to spot pressure, in yourself or a friend, once you know what it usually looks like.`,
+    whyBlockA: `<h3 style="margin-bottom:8px;">Common reasons people reach for something</h3>
+      <ul class="sub-list">
+        <li>Numbing anxiety, stress, or something painful they don't want to feel</li>
+        <li>Wanting to fit in or not stand out from a friend group</li>
+        <li>Boredom, or not having another way to feel excitement</li>
+        <li>Trouble sleeping, focusing, or managing a diagnosed or undiagnosed condition</li>
+        <li>Curiosity, or testing limits — a normal part of growing up, even when the specific choice is risky</li>
+      </ul>`,
+    whyBlockB: `<h3 style="margin-bottom:8px;">Things that meet those same needs without the risk</h3>
+      <ul class="sub-list">
+        <li>A real conversation with someone you trust — the anxiety or stress doesn't go away by itself, but talking changes how heavy it feels</li>
+        <li>Physical movement — sport, walking, anything that raises your heart rate — hits some of the same reward pathways</li>
+        <li>Music, art, gaming, or any activity absorbing enough to actually fill boredom, not just distract from it</li>
+        <li>If sleep, focus, or mood have been off for weeks, that's worth a real conversation with a doctor — there may be an actual, treatable reason</li>
+      </ul>`,
+
+    kicker03: `03 · Myth check`, title03: `Tap each card to flip it`,
+    lede03: `These are the lines you'll actually hear at parties, online, or from "that one friend." Here's what's really true.`,
+    mythTag: `Myth`, factTag: `Fact`, tapReveal: `tap to reveal →`, tapBack: `tap to flip back`,
+
+    kicker04: `04 · Know what you're looking at`, title04: `The substances you'll actually run into`,
+    lede04: `No dosing info, no "how to" — just what each one is, and the risks that matter most at your age.`,
+
+    kicker05: `05 · Real scenes, real lines`, title05: `What to actually say`,
+    lede05: `Saying no doesn't have to be a whole speech. Short, confident, and boring works best — it ends the conversation fast.`,
+
+    kicker06: `06 · Pay attention to`, title06: `Signs something's off — in you or a friend`,
+    lede06: `Mood swings, wanting more privacy, sleeping oddly — a lot of this is just normal at 14 and doesn't mean anything on its own. Don't use this list to diagnose yourself. What's actually worth noticing is a real, sudden shift, or several of these showing up together.`,
+    signsNote: `If you're worried about a friend, the goal isn't to build a case against them — it's to have a real conversation. "Hey, you've seemed off lately, is everything okay?" does more than confronting them with a list.`,
+
+    kicker07: `07 · If something goes wrong`, title07: `This could save a life`,
+    lede07: `Many overdose deaths happen because people are scared to call for help. Many places have "Good Samaritan" laws designed to protect the person who calls from being charged for drug possession — it's worth knowing what applies where you live, but getting help should always come first.`,
+
+    kicker08: `08 · Talk to someone`, title08: `You don't have to figure this out alone`,
+    lede08: `A trusted adult — a parent, school counselor, coach, doctor — is always step one. The lines below are free and staffed by people who won't judge you. Confidentiality rules vary by service — most helplines won't share what you say, but ask directly at the start of the call if you want to be sure before you talk.`,
+
+    kicker09: `09 · Quick check`, title09: `See what stuck`, lede09: `6 questions. No grade, no pressure — just a gut check.`,
+    quizYourScore: `your score`, quizRetryLabel: `RETAKE ↺`, quizNext: `NEXT →`, quizSeeScore: `SEE SCORE`,
+    quizPerfect: `Perfect. You know this better than most adults.`,
+    quizGood: `Solid grasp of the essentials — nice work.`,
+    quizLow: `Worth a re-read above — this stuff matters more than it seems.`,
+
+    footerLabel: `Why this page exists:`,
+    footerText: `to give you honest, judgment-free facts before you need them. It's educational content, not medical or legal advice, and it's not a substitute for talking to a doctor, counselor, or a trusted adult about your specific situation. If you or someone you know is in immediate danger, contact local emergency services right away.`,
+  },
+  ro: {
+    pageTitle: `Despre Droguri, Pe Bune`,
+    helpbtn: `AJUTOR →`,
+    eyebrow: `FĂRĂ PREDICI · DOAR FAPTE`,
+    heroH1: `Despre droguri.<br>Ce nu-ți spune<br>nimeni, <em>pe bune</em>.`,
+    heroP: `Alcool, vaping, iarbă, pastile — o să auzi despre toate astea înainte să fii adult. Asta e versiunea sinceră: cum funcționează de fapt, care sunt riscurile reale și ce poți spune când nu vrei să intri în joc.`,
+    heroScroll: `derulează — 10 min de citit`,
+
+    kicker01: `01 · Știința, pe scurt`, title01: `De ce te agață`,
+    lede01: `Orice drog — inclusiv nicotina, alcoolul și cofeina — acționează pe același sistem din creier. Dacă înțelegi cum funcționează, presiunea din jur are mult mai mult sens.`,
+    brain1h3: `Creierul tău are un sistem de recompensă`,
+    brain1p: `Eliberează o substanță numită dopamină când ceva te face să te simți bine — mâncare, râs cu prietenii, un joc câștigat. Așa îți spune creierul „fă asta din nou”.`,
+    brain2h3: `Drogurile inundă artificial acest sistem`,
+    brain2p: `Declanșează mult mai multă dopamină decât orice lucru natural — uneori de 2 până la 10 ori mai multă. Creierul tău nu a evoluat pentru un asemenea vârf.`,
+    brain3h3: `Creierul tău e încă „în construcție”`,
+    brain3p: `Zona responsabilă de judecată și controlul impulsurilor — cortexul prefrontal — nu termină de dezvoltat decât în jurul vârstei de 25 de ani. De aceea creierul adolescentin e mai ușor „rescris” de consumul repetat, iar riscul de probleme pe termen lung e mai mare cu cât începi mai devreme.`,
+    brain4h3: `Nu ține de „voință”`,
+    brain4p: `Odată ce creierul se adaptează la o substanță, are nevoie de tot mai mult din ea ca să se simtă normal și se simte mai rău fără ea. Asta e chimie, nu un defect de caracter — exact de aceea prevenția contează mai mult decât încercarea de a scăpa de asta mai târziu, doar prin voință.`,
+    brain5h3: `Nimic din toate astea nu e o condamnare`,
+    brain5p: `Un creier încă în dezvoltare înseamnă că riscul tău e <em style="color:var(--coral); font-style:normal;">mai mare</em>, nu că vreun rezultat e bătut în cuie. Somnul, conexiunile reale cu oamenii și modurile sănătoase de a gestiona stresul scad măsurabil acest risc — informația asta e o unealtă, nu o sentință.`,
+
+    kicker02: `02 · Motivele reale`, title02: `Rareori e doar „din distracție”`,
+    lede02: `Majoritatea oamenilor nu încep să consume doar din curiozitate. De obicei rezolvă o problemă — cel puțin la început. Nu e vorba despre a eticheta motivul cuiva, inclusiv al tău — e doar mai ușor să recunoști presiunea, la tine sau la un prieten, odată ce știi cum arată de obicei.`,
+    whyBlockA: `<h3 style="margin-bottom:8px;">Motive frecvente pentru care oamenii apelează la ceva</h3>
+      <ul class="sub-list">
+        <li>Ca să amorțească anxietatea, stresul sau ceva dureros pe care nu vor să-l simtă</li>
+        <li>Vor să se integreze sau să nu iasă în evidență din grupul de prieteni</li>
+        <li>Plictiseală, sau lipsa altor moduri de a simți entuziasm</li>
+        <li>Probleme de somn, concentrare sau gestionarea unei afecțiuni diagnosticate sau nediagnosticate</li>
+        <li>Curiozitate sau testarea limitelor — o parte normală a creșterii, chiar dacă alegerea concretă e riscantă</li>
+      </ul>`,
+    whyBlockB: `<h3 style="margin-bottom:8px;">Lucruri care acoperă aceleași nevoi, fără risc</h3>
+      <ul class="sub-list">
+        <li>O conversație reală cu cineva în care ai încredere — anxietatea sau stresul nu dispar de la sine, dar faptul că vorbești despre asta schimbă cât de greu se simt</li>
+        <li>Mișcare fizică — sport, mers pe jos, orice îți crește pulsul — activează unele dintre aceleași căi de recompensă</li>
+        <li>Muzică, artă, jocuri video sau orice activitate suficient de captivantă încât să umple plictiseala, nu doar să te distragă de la ea</li>
+        <li>Dacă somnul, concentrarea sau starea de spirit au fost date peste cap de săptămâni, merită o discuție reală cu un medic — poate exista un motiv real, tratabil</li>
+      </ul>`,
+
+    kicker03: `03 · Verificare de mituri`, title03: `Atinge fiecare card ca să-l întorci`,
+    lede03: `Astea sunt replicile pe care chiar le vei auzi la petreceri, online sau de la „prietenul ăla”. Iată ce e cu adevărat adevărat.`,
+    mythTag: `Mit`, factTag: `Fapt`, tapReveal: `atinge pentru răspuns →`, tapBack: `atinge pentru a întoarce`,
+
+    kicker04: `04 · Știi cu ce ai de-a face`, title04: `Substanțele pe care chiar le vei întâlni`,
+    lede04: `Fără informații despre doze, fără „cum să” — doar ce este fiecare și riscurile care contează cel mai mult la vârsta ta.`,
+
+    kicker05: `05 · Scene reale, replici reale`, title05: `Ce să spui, mai exact`,
+    lede05: `Să spui nu, nu trebuie să fie un discurs întreg. Scurt, sigur pe tine și „plictisitor” funcționează cel mai bine — încheie conversația rapid.`,
+
+    kicker06: `06 · Fii atent(ă) la`, title06: `Semne că ceva nu e în regulă — la tine sau la un prieten`,
+    lede06: `Schimbări de dispoziție, nevoia de mai multă intimitate, somn ciudat — multe dintre astea sunt normale la 14 ani și nu înseamnă nimic de sine stătător. Nu folosi lista asta ca să te „autodiagnostichezi”. Ce chiar merită observat e o schimbare bruscă, reală, sau mai multe dintre acestea apărând împreună.`,
+    signsNote: `Dacă ești îngrijorat(ă) pentru un prieten, scopul nu e să construiești un „dosar” împotriva lui — e să ai o conversație reală. „Hei, mi s-a părut că nu ești tu în ultima vreme, e totul ok?” face mai mult decât să-l confrunți cu o listă.`,
+
+    kicker07: `07 · Dacă ceva merge prost`, title07: `Asta îți poate salva o viață`,
+    lede07: `Multe decese prin supradoză se întâmplă pentru că oamenilor le e frică să sune după ajutor. În multe locuri există legi de tip „Bunul Samaritean”, gândite să protejeze persoana care sună de a fi acuzată de deținere de droguri — merită să afli ce se aplică acolo unde locuiești, dar cererea de ajutor contează mai mult decât orice altceva.`,
+
+    kicker08: `08 · Vorbește cu cineva`, title08: `Nu trebuie să treci prin asta singur(ă)`,
+    lede08: `Un adult de încredere — un părinte, consilierul școlar, antrenorul, un medic — e mereu primul pas. Liniile de mai jos sunt gratuite și te ajută oameni care nu te vor judeca. Regulile de confidențialitate diferă de la un serviciu la altul — majoritatea liniilor de asistență nu vor divulga ce spui, dar întreabă direct la începutul apelului dacă vrei să fii sigur(ă) înainte să vorbești.`,
+
+    kicker09: `09 · Verificare rapidă`, title09: `Vezi ce a rămas`, lede09: `6 întrebări. Fără notă, fără presiune — doar un test rapid.`,
+    quizYourScore: `scorul tău`, quizRetryLabel: `RELUARE ↺`, quizNext: `URMĂTOAREA →`, quizSeeScore: `VEZI SCORUL`,
+    quizPerfect: `Perfect. Știi asta mai bine decât mulți adulți.`,
+    quizGood: `Ai o înțelegere solidă a esențialului — treabă bună.`,
+    quizLow: `Merită să recitești mai sus — subiectul ăsta contează mai mult decât pare.`,
+
+    footerLabel: `De ce există pagina asta:`,
+    footerText: `ca să-ți ofere fapte sincere, fără judecată, înainte să ai nevoie de ele. E conținut educațional, nu sfat medical sau juridic, și nu înlocuiește o discuție cu un medic, un consilier sau un adult de încredere despre situația ta concretă. Dacă tu sau cineva pe care-l cunoști este în pericol chiar acum, sună imediat la serviciile locale de urgență.`,
+  }
+};
+
+let currentLang = 'en';
+
+/* ---------------- Synapse hero animation ---------------- */
+(function(){
+  const nodesG = document.getElementById('nodes');
+  const linesG = document.getElementById('lines');
+  const pts = [];
+  const rand = (a,b)=>a+Math.random()*(b-a);
+  for(let i=0;i<9;i++){
+    pts.push({x:rand(20,380), y:rand(20,200), r:rand(3,6)});
+  }
+  pts.forEach(p=>{
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',p.r);
+    c.setAttribute('class','node'); c.style.opacity='0.85';
+    nodesG.appendChild(c);
+  });
+  for(let i=0;i<pts.length;i++){
+    const j=(i+1)%pts.length;
+    const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',pts[i].x); l.setAttribute('y1',pts[i].y);
+    l.setAttribute('x2',pts[j].x); l.setAttribute('y2',pts[j].y);
+    linesG.appendChild(l);
+  }
+  let t=0;
+  function animate(){
+    t+=0.015;
+    nodesG.querySelectorAll('circle').forEach((c,i)=>{
+      const s = 1 + Math.sin(t*2+i)*0.35;
+      c.setAttribute('opacity', 0.5+Math.sin(t*2+i)*0.4);
+      c.setAttribute('r', pts[i].r*Math.max(0.6,s));
+    });
+    requestAnimationFrame(animate);
+  }
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ animate(); }
+})();
+
+/* ---------------- Myth vs fact data ---------------- */
+const myths = [
+  {en:{claim:"Vaping is basically just flavored water vapor.", fact:"Vape aerosol contains nicotine plus fine particles and chemicals that irritate lungs. Teen nicotine use also rewires the brain's reward system faster than in adults."},
+   ro:{claim:"Vapatul e practic doar vapori de apă aromată.", fact:"Aerosolul din vape conține nicotină plus particule fine și substanțe chimice care irită plămânii. Consumul de nicotină la adolescenți „rescrie” sistemul de recompensă al creierului mai rapid decât la adulți."}},
+  {en:{claim:"Weed isn't addictive — you can't get hooked.", fact:"About 1 in 6 people who start using cannabis before 18 become dependent, compared with roughly 1 in 10 people who start as adults."},
+   ro:{claim:"Iarba nu creează dependență — nu te poți agăța de ea.", fact:"Aproximativ 1 din 6 persoane care încep să consume canabis înainte de 18 ani devin dependente, față de aproximativ 1 din 10 dintre cele care încep la vârsta adultă."}},
+  {en:{claim:"If a drink's been spiked, you'd definitely notice.", fact:"Most drink-spiking drugs are colorless, odorless, and tasteless. The only real protection is never accepting a drink you didn't see poured or opened."},
+   ro:{claim:"Dacă cineva ți-a pus ceva în băutură, cu siguranță ai observa.", fact:"Majoritatea substanțelor folosite pentru a „drogui” o băutură sunt incolore, inodore și fără gust. Singura protecție reală e să nu accepți niciodată o băutură pe care nu ai văzut-o turnată sau deschisă."}},
+  {en:{claim:"Pills are safe if they came from a real pharmacy.", fact:"Prescription medication is only tested safe at the dose and person it was prescribed for. Taking someone else's prescription, or more than prescribed, carries real risk."},
+   ro:{claim:"Pastilele sunt sigure dacă vin dintr-o farmacie adevărată.", fact:"Un medicament cu rețetă e testat ca fiind sigur doar la doza și pentru persoana căreia i-a fost prescris. Să iei rețeta altcuiva, sau mai mult decât ți s-a prescris, presupune un risc real."}},
+  {en:{claim:`"Everyone" is drinking or using something.`, fact:"Most teens actually don't. Substance use is more visible than it is common — the loudest people in the room aren't the majority."},
+   ro:{claim:`„Toată lumea” bea sau consumă ceva.`, fact:"De fapt, majoritatea adolescenților nu o fac. Consumul pare mai răspândit decât este de fapt — cei mai gălăgioși din cameră nu sunt majoritatea."}},
+  {en:{claim:"One try can't really hurt anything.", fact:"Risk isn't just about frequency. A single use of an unknown pill or contaminated substance can be dangerous the very first time."},
+   ro:{claim:"O singură încercare nu poate face rău cu adevărat.", fact:"Riscul nu ține doar de frecvență. O singură utilizare a unei pastile necunoscute sau a unei substanțe contaminate poate fi periculoasă chiar din prima dată."}},
+];
+const flipGrid = document.getElementById('flipGrid');
+function renderMyths(lang){
+  flipGrid.innerHTML='';
+  myths.forEach((m)=>{
+    const d = m[lang];
+    const card = document.createElement('div');
+    card.className='flip-card';
+    card.innerHTML = `
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <span class="flip-tag">${T[lang].mythTag}</span>
+          <span class="flip-claim">${d.claim}</span>
+          <span class="flip-tap">${T[lang].tapReveal}</span>
+        </div>
+        <div class="flip-face flip-back">
+          <span class="flip-tag">${T[lang].factTag}</span>
+          <span class="flip-answer">${d.fact}</span>
+          <span class="flip-tap">${T[lang].tapBack}</span>
+        </div>
+      </div>`;
+    card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+    flipGrid.appendChild(card);
+  });
+}
+
+/* ---------------- Substance snapshots ---------------- */
+const substances = [
+  {icon:"🍺", color:"#ffd23f",
+   en:{name:"Alcohol", legal:"Age-restricted", desc:"The most common substance teens encounter — legal for adults, but the teen brain and body process it differently.",
+     risks:["Impairs judgment and coordination fast, raising injury and crash risk","Teen drinking is linked to disrupted brain development","Mixing with other substances sharply raises overdose risk","Binge drinking can cause alcohol poisoning, which can be fatal"]},
+   ro:{name:"Alcoolul", legal:"Restricționat pe vârstă", desc:"Cea mai întâlnită substanță pentru adolescenți — legală pentru adulți, dar creierul și corpul unui adolescent o procesează diferit.",
+     risks:["Afectează rapid judecata și coordonarea, crescând riscul de accidentări","Consumul de alcool la adolescenți e asociat cu perturbarea dezvoltării creierului","Combinarea cu alte substanțe crește puternic riscul de supradoză","Consumul excesiv (binge drinking) poate provoca intoxicație alcoolică, care poate fi fatală"]}},
+  {icon:"💨", color:"#00e5c9",
+   en:{name:"Nicotine & vaping", legal:"Age-restricted", desc:`Marketed as "safer" than smoking — but nicotine itself is one of the most addictive substances there is.`,
+     risks:["Teen brains build nicotine dependence faster than adult brains","Can prime the brain to be more sensitive to other addictive substances","Vape liquid can contain heavy metals and lung-irritating chemicals","Withdrawal (irritability, anxiety, cravings) can start within hours"]},
+   ro:{name:"Nicotina și vapatul", legal:"Restricționat pe vârstă", desc:`Promovat ca fiind „mai sigur” decât fumatul — dar nicotina în sine e una dintre cele mai adictive substanțe care există.`,
+     risks:["Creierul adolescentin dezvoltă dependența de nicotină mai repede decât cel adult","Poate face creierul mai sensibil la alte substanțe care creează dependență","Lichidul din vape poate conține metale grele și substanțe care irită plămânii","Sevrajul (iritabilitate, anxietate, poftă) poate începe în câteva ore"]}},
+  {icon:"🌿", color:"#8fce8f",
+   en:{name:"Cannabis", legal:"Varies by location", desc:"Legal status varies a lot by country and state — legality doesn't equal risk-free, especially for a developing brain.",
+     risks:["Regular teen use is linked to lower attention and memory performance","Raises risk of anxiety and, in vulnerable people, psychosis","Today's products are often far more potent than in past decades","Driving impairment can last hours after the high feels like it's worn off"]},
+   ro:{name:"Canabisul", legal:"Diferă în funcție de țară", desc:"Statutul legal diferă mult între țări — legalitatea nu înseamnă lipsă de risc, mai ales pentru un creier în dezvoltare.",
+     risks:["Consumul regulat la adolescenți e asociat cu performanțe mai slabe de atenție și memorie","Crește riscul de anxietate și, la persoanele vulnerabile, de psihoză","Produsele actuale sunt adesea mult mai concentrate decât în trecut","Afectarea capacității de a conduce poate dura ore, chiar și după ce senzația de „high” pare să fi trecut"]}},
+  {icon:"💊", color:"#ff5470",
+   en:{name:"Prescription misuse", legal:"Illegal without prescription", desc:"Taking a medication that isn't prescribed to you, or more than prescribed — includes painkillers, stimulants, and anxiety medication.",
+     risks:["A dose that's safe for one person can be dangerous for another","Mixing with alcohol dramatically raises overdose risk","Counterfeit pills sold online or by peers are common and often mislabeled","Even one misuse can be lethal if the pill isn't what it's claimed to be"]},
+   ro:{name:"Abuzul de medicamente cu rețetă", legal:"Ilegal fără rețetă", desc:"Să iei un medicament care nu ți-a fost prescris ție, sau mai mult decât ți s-a prescris — include analgezice, stimulente și medicamente pentru anxietate.",
+     risks:["O doză sigură pentru o persoană poate fi periculoasă pentru alta","Combinarea cu alcoolul crește dramatic riscul de supradoză","Pastilele contrafăcute vândute online sau de colegi sunt frecvente și adesea etichetate greșit","Chiar și o singură utilizare greșită poate fi letală dacă pastila nu e ce pretinde că este"]}},
+  {icon:"⚠️", color:"#ff5470",
+   en:{name:"Unknown / street substances", legal:"Illegal", desc:"Powders, pills, or blotters from an unverified source — you genuinely cannot know what's in them by looking.",
+     risks:[`Many are now cut with fentanyl, which is lethal in extremely small amounts`,"No visual or taste test can detect contamination",`A previous "good" experience doesn't predict the next batch is safe`,"This is the highest-risk category for accidental death, even for first-time use"]},
+   ro:{name:"Substanțe necunoscute / de stradă", legal:"Ilegal", desc:"Pulberi, pastile sau timbre provenite dintr-o sursă neverificată — pur și simplu nu poți ști ce conțin doar privindu-le.",
+     risks:["Multe sunt acum „tăiate” cu fentanil, care e letal în cantități extrem de mici","Niciun test vizual sau de gust nu poate detecta contaminarea","O experiență anterioară „bună” nu garantează că următorul lot e sigur","E categoria cu cel mai mare risc de deces accidental, chiar și la prima utilizare"]}},
+];
+const subGrid = document.getElementById('subGrid');
+function renderSubstances(lang){
+  subGrid.innerHTML='';
+  substances.forEach(s=>{
+    const d = s[lang];
+    const el = document.createElement('div');
+    el.className='sub-card';
+    el.innerHTML = `
+      <div class="sub-head">
+        <div class="sub-chip" style="background:${s.color}22; border:1px solid ${s.color}55;">${s.icon}</div>
+        <h3>${d.name}</h3>
+        <span class="sub-legal">${d.legal}</span>
+      </div>
+      <p>${d.desc}</p>
+      <ul class="sub-list">${d.risks.map(r=>`<li>${r}</li>`).join('')}</ul>`;
+    subGrid.appendChild(el);
+  });
+}
+
+/* ---------------- Scenarios ---------------- */
+const scenarios = [
+  {en:{situ:`"Come on, everyone's having one, don't be lame."`, script:`"Nah, I'm good — I've got practice tomorrow."`, note:`(Any reason works. You don't owe an explanation.)`},
+   ro:{situ:`„Hai, toată lumea bea una, nu fi jenant(ă).”`, script:`„Nu, sunt ok — am antrenament mâine.”`, note:`(Orice motiv merge. Nu-i datorezi nimănui o explicație.)`}},
+  {en:{situ:`Someone hands you a drink you didn't see poured.`, script:`"I didn't see you make that — I'll grab my own."`, note:`Never accept a drink you didn't watch get made or opened.`},
+   ro:{situ:`Cineva îți întinde o băutură pe care nu ai văzut-o turnată.`, script:`„N-am văzut-o cum ai făcut-o — îmi iau eu una.”`, note:`Nu accepta niciodată o băutură pe care nu ai văzut-o preparată sau deschisă.`}},
+  {en:{situ:`A friend keeps pushing after you've already said no.`, script:`"I already said no — can we talk about something else?"`, note:`Repeat it flat and unbothered. It works better than arguing.`},
+   ro:{situ:`Un prieten continuă să insiste după ce ai spus deja nu.`, script:`„Am spus deja nu — putem vorbi despre altceva?”`, note:`Repet-o calm și fără emoție. Funcționează mai bine decât să te cerți.`}},
+  {en:{situ:`You want an exit that isn't about them at all.`, script:`"Actually my [parent/coach] is picking me up soon, gotta go."`, note:`A fake logistics excuse is a totally fair escape hatch.`},
+   ro:{situ:`Vrei o scuză de plecare care nu are legătură cu ei deloc.`, script:`„De fapt mă ia [părintele/antrenorul] în curând, trebuie să plec.”`, note:`O scuză logistică inventată e o portiță de ieșire complet acceptabilă.`}},
+];
+const scenarioGrid = document.getElementById('scenarioGrid');
+function renderScenarios(lang){
+  scenarioGrid.innerHTML='';
+  scenarios.forEach(s=>{
+    const d = s[lang];
+    const el = document.createElement('div');
+    el.className='scenario';
+    el.innerHTML = `<p class="situ">${d.situ}</p><div class="script">${d.script} <br><span style="opacity:.6">${d.note}</span></div>`;
+    scenarioGrid.appendChild(el);
+  });
+}
+
+/* ---------------- Warning signs ---------------- */
+const signs = [
+  {en:"Sudden shift in friend group, mood, or grades with no clear reason", ro:"Schimbare bruscă a grupului de prieteni, a dispoziției sau a notelor, fără un motiv clar"},
+  {en:"Losing interest in things that used to matter — sports, hobbies, people", ro:"Pierderea interesului pentru lucruri care contau înainte — sport, hobby-uri, oameni"},
+  {en:"Secrecy about where they've been or who they were with", ro:"Secretomanie legată de unde a fost sau cu cine"},
+  {en:"Money or belongings going missing", ro:"Bani sau obiecte care dispar"},
+  {en:"Smell of smoke, alcohol, or covering it heavily with mints/perfume", ro:"Miros de fum, alcool, sau mascarea excesivă a acestuia cu mentă/parfum"},
+  {en:"Unexplained changes in sleep, appetite, or energy", ro:"Schimbări inexplicabile ale somnului, apetitului sau energiei"},
+  {en:"Defensive or angry reactions to normal questions", ro:"Reacții defensive sau de furie la întrebări normale"},
+];
+const signsList = document.getElementById('signsList');
+function renderSigns(lang){
+  signsList.innerHTML='';
+  signs.forEach(s=>{
+    const el = document.createElement('div');
+    el.className='check-item';
+    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>${s[lang]}</span>`;
+    signsList.appendChild(el);
+  });
+}
+
+/* ---------------- Emergency steps ---------------- */
+const emgSteps = [
+  {en:{t:"Call for emergency help immediately", d:`If someone is unresponsive, struggling to breathe, having a seizure, or you're not sure — call local emergency services right away. Don't wait to see if they'll "sleep it off."`},
+   ro:{t:"Sună imediat la urgențe", d:`Dacă cineva nu reacționează, are dificultăți de respirație, are o criză convulsivă, sau pur și simplu nu ești sigur(ă) — sună imediat la serviciile locale de urgență. Nu aștepta să vezi dacă „îi trece dormind”.`}},
+  {en:{t:"Stay with them", d:"Don't leave someone alone, even if they seem to recover. Some reactions get worse before they get better."},
+   ro:{t:"Rămâi lângă persoană", d:"Nu lăsa pe nimeni singur, chiar dacă pare că-și revine. Unele reacții se agravează înainte să se amelioreze."}},
+  {en:{t:"Turn them on their side", d:"If they're drowsy or vomiting, the recovery position (on their side, head tilted back slightly) helps stop choking."},
+   ro:{t:"Așază-l/o pe o parte", d:"Dacă e somnoros(oasă) sau vomită, poziția de siguranță (pe o parte, cu capul ușor înclinat pe spate) ajută la prevenirea sufocării."}},
+  {en:{t:"Tell responders the truth", d:"What was taken, how much, and when — accurate info helps them treat the person correctly. This isn't the moment to protect a secret."},
+   ro:{t:"Spune adevărul echipajului de urgență", d:"Ce a fost consumat, cât și când — informațiile corecte îi ajută să trateze persoana corect. Nu e momentul să protejezi un secret."}},
+  {en:{t:"Don't leave them to avoid trouble", d:"Fear of getting in trouble is the #1 reason people delay calling for help — and delay is what turns a scary situation into a fatal one."},
+   ro:{t:"Nu pleca de teama consecințelor", d:"Frica de a avea probleme e motivul numărul unu pentru care oamenii întârzie să ceară ajutor — iar întârzierea e ceea ce transformă o situație înspăimântătoare într-una fatală."}},
+];
+const emgWrap = document.getElementById('emgSteps');
+function renderEmergency(lang){
+  emgWrap.innerHTML='';
+  emgSteps.forEach((s,i)=>{
+    const d = s[lang];
+    const el = document.createElement('div');
+    el.className='emg-step';
+    el.innerHTML = `<div class="emg-num">${String(i+1).padStart(2,'0')}</div><div><strong>${d.t}</strong><p>${d.d}</p></div>`;
+    emgWrap.appendChild(el);
+  });
+}
+
+/* ---------------- Help resources ---------------- */
+const helpItems = [
+  {num:"start here", numRo:"începe aici", en:{title:"A trusted adult", sub:"Parent, school counselor, coach, doctor — always step one"}, ro:{title:"Un adult de încredere", sub:"Părinte, consilier școlar, antrenor, medic — mereu primul pas"}},
+  {num:"1-800-662-4357", numRo:"1-800-662-4357", en:{title:"SAMHSA National Helpline (US)", sub:"Free, confidential, 24/7, any language"}, ro:{title:"SAMHSA National Helpline (SUA)", sub:"Gratuit, confidențial, non-stop, în orice limbă"}},
+  {num:"116 111", numRo:"116 111", en:{title:"Telefonul Copilului (Romania)", sub:"Free, confidential, for children & teens"}, ro:{title:"Telefonul Copilului (România)", sub:"Gratuit, confidențial, pentru copii și adolescenți"}},
+  {num:"call now", numRo:"sună acum", en:{title:"Local emergency services", sub:"For any immediate danger to life"}, ro:{title:"Serviciile locale de urgență", sub:"Pentru orice pericol imediat pentru viață"}},
+];
+const helpList = document.getElementById('helpList');
+function renderHelp(lang){
+  helpList.innerHTML='';
+  helpItems.forEach(h=>{
+    const d = h[lang];
+    const num = lang==='ro' ? h.numRo : h.num;
+    const el = document.createElement('div');
+    el.className='help-card';
+    el.innerHTML = `<div class="help-text"><div class="htitle">${d.title}</div><div class="hsub">${d.sub}</div></div><div class="help-num">${num}</div>`;
+    helpList.appendChild(el);
+  });
+}
+
+/* ---------------- Quiz ---------------- */
+const quizData = [
+  {correct:1,
+   en:{q:"Why are teen brains more affected by drugs and alcohol than adult brains?", opts:["Teens are smaller so it hits harder","The brain's judgment center isn't fully developed until ~25","Teens have faster metabolisms","It's actually the same for everyone"],
+     fb:"The prefrontal cortex — your judgment and impulse control center — is still developing into your mid-20s, making it more easily reshaped by repeated substance use."},
+   ro:{q:"De ce sunt creierele adolescenților mai afectate de droguri și alcool decât cele ale adulților?", opts:["Adolescenții sunt mai mici, deci îi lovește mai tare","Centrul judecății din creier nu e complet dezvoltat până pe la 25 de ani","Adolescenții au un metabolism mai rapid","De fapt e la fel pentru toată lumea"],
+     fb:"Cortexul prefrontal — centrul judecății și al controlului impulsurilor — încă se dezvoltă până spre mijlocul anilor 20, ceea ce îl face mai ușor de „remodelat” de consumul repetat de substanțe."}},
+  {correct:2,
+   en:{q:"You're handed a drink at a party that you didn't see poured. Best move?", opts:["Smell it first to check","Drink it, you'll probably be fine","Politely decline and get your own","Only drink half"],
+     fb:"Spiking drugs are usually colorless, odorless, and tasteless — smell or taste tests don't work. Never accept a drink you didn't watch get made."},
+   ro:{q:"Cineva îți dă o băutură la o petrecere pe care nu ai văzut-o turnată. Cea mai bună mișcare?", opts:["O miroși mai întâi ca să verifici","O bei, probabil ești ok","Refuzi politicos și îți iei singur(ă) una","Bei doar jumătate"],
+     fb:"Substanțele folosite pentru a „drogui” băuturi sunt de obicei incolore, inodore și fără gust — testul mirosului sau al gustului nu funcționează. Nu accepta niciodată o băutură pe care nu ai văzut-o preparată."}},
+  {correct:2,
+   en:{q:"Which of these is true about cannabis?", opts:["It's impossible to develop a dependence on it","It has zero effect on driving after the high wears off","Regular teen use is linked to memory and attention effects","Legal status means it's risk-free"],
+     fb:"About 1 in 6 people who start as teens develop dependence, and regular use during brain development is linked to memory and attention changes."},
+   ro:{q:"Care dintre următoarele este adevărată despre canabis?", opts:["E imposibil să dezvolți dependență de el","Nu are niciun efect asupra condusului după ce trece starea de „high”","Consumul regulat la adolescenți e asociat cu efecte asupra memoriei și atenției","Statutul legal înseamnă că e lipsit de risc"],
+     fb:"Aproximativ 1 din 6 persoane care încep ca adolescenți dezvoltă dependență, iar consumul regulat în timpul dezvoltării creierului e asociat cu modificări ale memoriei și atenției."}},
+  {correct:1,
+   en:{q:"What makes street/unknown substances so dangerous right now?", opts:["They're more expensive than before","Many are contaminated with fentanyl, lethal in tiny amounts","They always taste bad so people stop in time","There's no real added risk vs. other drugs"],
+     fb:"Fentanyl contamination means even first-time use of an unknown pill or powder can be fatal — there's no way to tell just by looking."},
+   ro:{q:"Ce face substanțele necunoscute/de stradă atât de periculoase acum?", opts:["Sunt mai scumpe decât înainte","Multe sunt contaminate cu fentanil, letal în cantități mici","Au mereu gust rău, așa că oamenii se opresc la timp","Nu există un risc real în plus față de alte droguri"],
+     fb:"Contaminarea cu fentanil înseamnă că până și prima utilizare a unei pastile sau pulberi necunoscute poate fi fatală — nu există nicio metodă de a-ți da seama doar privind."}},
+  {correct:2,
+   en:{q:"Someone at a party seems unresponsive after taking something. First move?", opts:["Wait to see if they sleep it off","Post about it online to find advice","Call emergency services immediately","Leave so you're not involved"],
+     fb:"Call for help immediately and stay with them. Delay is the biggest factor that turns a scary situation into a fatal one."},
+   ro:{q:"Cineva la o petrecere pare că nu reacționează după ce a consumat ceva. Prima mișcare?", opts:["Aștepți să vezi dacă îi trece dormind","Postezi online ca să găsești sfaturi","Suni imediat la urgențe","Pleci ca să nu fii implicat(ă)"],
+     fb:"Sună imediat după ajutor și rămâi lângă persoană. Întârzierea e cel mai mare factor care transformă o situație înspăimântătoare într-una fatală."}},
+  {correct:1,
+   en:{q:"A friend keeps pressuring you after you've already said no once. What tends to work best?", opts:["Give a long explanation of all your reasons","Repeat a short, flat no and change the subject","Just go along with it to avoid drama","Avoid them for the rest of the year"],
+     fb:"Short, calm, and repeated works better than debating — it signals the decision is final without giving anyone an opening to argue."},
+   ro:{q:"Un prieten continuă să insiste după ce ai spus deja nu o dată. Ce funcționează de obicei cel mai bine?", opts:["Îi dai o explicație lungă cu toate motivele tale","Repeți un nu scurt și calm și schimbi subiectul","Mergi pe mâna lui ca să eviți drama","Îl eviți tot restul anului"],
+     fb:"Scurt, calm și repetat funcționează mai bine decât să argumentezi — arată că decizia e finală, fără să lași loc de ceartă."}},
+];
+let qIndex=0, qScore=0, qAnswered=false;
+const quizBody = document.getElementById('quizBody');
+const quizProgress = document.getElementById('quizProgress');
+const quizResult = document.getElementById('quizResult');
+
+function renderProgress(){
+  quizProgress.innerHTML = quizData.map((_,i)=>`<i class="${i<qIndex?'done':''}"></i>`).join('');
+}
+function renderQuestion(){
+  qAnswered=false;
+  renderProgress();
+  const item = quizData[qIndex];
+  const d = item[currentLang];
+  quizBody.innerHTML = `
+    <p class="quiz-q">${d.q}</p>
+    <div class="quiz-opts">${d.opts.map((o,i)=>`<button type="button" class="quiz-opt" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="quiz-fb" id="quizFb">${d.fb}</div>
+    <button type="button" class="quiz-next" id="quizNext">${qIndex===quizData.length-1?T[currentLang].quizSeeScore:T[currentLang].quizNext}</button>
+  `;
+  quizBody.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(qAnswered) return;
+      qAnswered=true;
+      const i = parseInt(btn.dataset.i);
+      const correct = item.correct;
+      quizBody.querySelectorAll('.quiz-opt').forEach((b,bi)=>{
+        if(bi===correct) b.classList.add('correct');
+        else if(bi===i) b.classList.add('wrong');
+      });
+      if(i===correct) qScore++;
+      document.getElementById('quizFb').classList.add('show');
+      document.getElementById('quizNext').classList.add('show');
+    });
+  });
+  document.getElementById('quizNext').addEventListener('click', ()=>{
+    qIndex++;
+    if(qIndex>=quizData.length){
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  });
+}
+function showResult(){
+  quizBody.style.display='none';
+  quizProgress.style.display='none';
+  quizResult.classList.add('show');
+  document.getElementById('quizScore').textContent = `${qScore}/${quizData.length}`;
+  const msg = qScore===quizData.length ? T[currentLang].quizPerfect :
+              qScore>=4 ? T[currentLang].quizGood :
+              T[currentLang].quizLow;
+  document.getElementById('quizMsg').textContent = msg;
+}
+function resetQuiz(){
+  qIndex=0; qScore=0;
+  quizBody.style.display='block';
+  quizProgress.style.display='flex';
+  quizResult.classList.remove('show');
+  renderQuestion();
+}
+document.getElementById('quizRetry').addEventListener('click', resetQuiz);
+
+/* ---------------- Language switching ---------------- */
+function applyStaticText(lang){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(T[lang][key] !== undefined) el.innerHTML = T[lang][key];
+  });
+  document.title = T[lang].pageTitle;
+  document.documentElement.lang = lang;
+}
+function setLang(lang){
+  currentLang = lang;
+  applyStaticText(lang);
+  document.querySelectorAll('.langtoggle button').forEach(b=>{
+    const isActive = b.dataset.lang===lang;
+    b.classList.toggle('active', isActive);
+    b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+  renderMyths(lang);
+  renderSubstances(lang);
+  renderScenarios(lang);
+  renderSigns(lang);
+  renderEmergency(lang);
+  renderHelp(lang);
+  resetQuiz();
+}
+document.querySelectorAll('.langtoggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=> setLang(btn.dataset.lang));
+});
+
+setLang('en');
+</script>
+</body>
+</html>
