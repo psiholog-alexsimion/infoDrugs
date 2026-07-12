@@ -62,6 +62,22 @@
   .brand{ font-family:'Space Grotesk'; font-weight:700; font-size:17px; flex-shrink:0; }
   .brand span{ color:var(--cyan); }
   .topbar-right{ display:flex; align-items:center; gap:8px; }
+  /* ---------- Scroll progress + back to top ---------- */
+  .scroll-progress{
+    position:fixed; top:0; left:0; height:3px; width:0%; background:var(--cyan);
+    z-index:60; transition:width 0.1s linear;
+  }
+  .back-to-top{
+    position:fixed; bottom:22px; right:22px; z-index:55;
+    width:46px; height:46px; border-radius:50%; border:1px solid var(--line);
+    background:var(--bg-card); color:var(--cyan); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; opacity:0; pointer-events:none; transform:translateY(10px);
+    transition:opacity 0.25s ease, transform 0.25s ease, border-color 0.18s ease;
+    box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  }
+  .back-to-top.show{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  .back-to-top svg{ width:20px; height:20px; }
+
   .helpbtn{
     font-family:'IBM Plex Mono'; font-size:11.5px; font-weight:600;
     color:var(--bg); background:var(--yellow); border:none;
@@ -179,6 +195,13 @@
   .sub-list{ list-style:none; margin:0; padding:0; display:grid; gap:6px; }
   .sub-list li{ font-size:13.5px; color:var(--text); display:flex; gap:8px; }
   .sub-list li::before{ content:"—"; color:var(--coral); flex-shrink:0; }
+  .sub-label{ font-family:'IBM Plex Mono'; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); }
+  .sub-effects{
+    font-size:13.5px; color:var(--text); line-height:1.5;
+    background:rgba(255,255,255,0.03); border-left:2px solid var(--cyan);
+    padding:9px 12px; margin:0 0 14px; border-radius:0 8px 8px 0;
+  }
+  .sub-effects .sub-label{ display:block; margin-bottom:3px; }
 
   /* ---------- Scenario / refusal ---------- */
   .scenario{
@@ -226,6 +249,29 @@
   .help-card .hsub{ font-size:12.5px; color:var(--text-dim); }
   .help-num{ font-family:'IBM Plex Mono'; font-size:14px; color:var(--cyan); white-space:nowrap; flex-shrink:0; }
 
+  /* ---------- FAQ accordion ---------- */
+  .faq-item{
+    background:var(--bg-alt); border:1px solid var(--line); border-radius:14px;
+    margin-bottom:10px; overflow:hidden; transition:border-color 0.18s ease;
+  }
+  .faq-q{
+    width:100%; text-align:left; background:none; border:none; color:var(--text);
+    padding:16px 18px; font-family:'Inter'; font-weight:600; font-size:14.5px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; cursor:pointer;
+  }
+  .faq-q .chev{
+    flex-shrink:0; width:20px; height:20px; color:var(--cyan);
+    transition:transform 0.25s ease;
+  }
+  .faq-item.open .faq-q .chev{ transform:rotate(135deg); }
+  .faq-a{
+    max-height:0; overflow:hidden; transition:max-height 0.3s ease;
+  }
+  .faq-a-inner{
+    padding:0 18px 16px; font-size:14px; color:var(--text-dim); line-height:1.55;
+  }
+  .faq-item.open .faq-a{ max-height:300px; }
+
   /* ---------- Quiz ---------- */
   .quiz-shell{
     background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius); padding:22px; overflow:hidden;
@@ -269,6 +315,21 @@
     .hero h1{ font-size:52px; }
   }
 
+  /* ---------- Desktop layout ---------- */
+  @media (min-width:860px){
+    .wrap{ max-width:1080px; padding:0 40px; }
+
+    .hero{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:48px; align-items:center; padding-top:52px; }
+    .hero-text{ grid-column:1; }
+    .synapse{ grid-column:2; height:340px; margin:0; }
+    .hero h1{ font-size:58px; }
+
+    .flip-grid, #subGrid, #scenarioGrid, #helpList, #faqList{
+      display:grid; grid-template-columns:repeat(2,1fr); gap:16px; align-items:start;
+    }
+    #subGrid .sub-card, #scenarioGrid .scenario, #helpList .help-card, #faqList .faq-item{ margin-bottom:0; }
+  }
+
   /* ---------- Hover states (mouse/trackpad only — never sticks on touch) ---------- */
   @media (hover: hover) and (pointer: fine){
     .helpbtn:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(255,210,63,0.35); }
@@ -283,10 +344,18 @@
     .quiz-opt:not(.correct):not(.wrong):hover{ border-color:var(--cyan); background:rgba(0,229,201,0.06); }
     .quiz-next:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,229,201,0.35); }
     .quiz-retry:hover{ border-color:var(--text-dim); background:rgba(244,241,234,0.06); }
+    .faq-q:hover{ background:rgba(244,241,234,0.04); }
+    .faq-item:hover{ border-color:rgba(0,229,201,0.35); }
+    .back-to-top:hover{ border-color:var(--cyan); transform:translateY(-2px); }
   }
 </style>
 </head>
 <body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -296,7 +365,7 @@
         <button type="button" data-lang="en" class="active" aria-pressed="true">EN</button>
         <button type="button" data-lang="ro" aria-pressed="false">RO</button>
       </div>
-      <a href="#help" class="helpbtn" data-i18n="helpbtn">GET HELP →</a>
+      <a href="#emergency" class="helpbtn" data-i18n="helpbtn">GET HELP →</a>
     </div>
   </div>
 </div>
@@ -305,20 +374,21 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow">NO LECTURES · JUST FACTS</span></div>
-    <h1 data-i18n="heroH1">Drugs.<br>The stuff people<br><em>don't</em> tell you straight.</h1>
-    <p data-i18n="heroP">Alcohol, vaping, weed, pills — you're going to hear about all of it before you're an adult. This is the honest version: how it actually works, what the real risks are, and what to say when you don't want in.</p>
+    <div class="hero-text">
+      <div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow">NO LECTURES · JUST FACTS</span></div>
+      <h1 data-i18n="heroH1">Drugs.<br>The stuff people<br><em>don't</em> tell you straight.</h1>
+      <p data-i18n="heroP">Alcohol, vaping, weed, pills — you're going to hear about all of it before you're an adult. This is the honest version: how it actually works, what the real risks are, and what to say when you don't want in.</p>
+      <div class="hero-scroll">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        <span data-i18n="heroScroll">scroll — 21 min read</span>
+      </div>
+    </div>
 
     <div class="synapse" aria-hidden="true">
       <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
         <g class="pulseline" id="lines"></g>
         <g id="nodes"></g>
       </svg>
-    </div>
-
-    <div class="hero-scroll">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-      <span data-i18n="heroScroll">scroll — 10 min read</span>
     </div>
   </section>
 
@@ -451,11 +521,20 @@
     <div id="helpList"></div>
   </section>
 
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="kicker c-cyan" data-i18n="kicker09">09 · What people actually search</div>
+    <h2 class="sec-title" data-i18n="title09">Questions you'd type into Google</h2>
+    <p class="lede" data-i18n="lede09">The stuff you'd search at 1am instead of asking someone out loud. Tap to expand.</p>
+
+    <div id="faqList"></div>
+  </section>
+
   <!-- QUIZ -->
   <section id="quiz">
-    <div class="kicker c-cyan" data-i18n="kicker09">09 · Quick check</div>
-    <h2 class="sec-title" data-i18n="title09">See what stuck</h2>
-    <p class="lede" data-i18n="lede09">6 questions. No grade, no pressure — just a gut check.</p>
+    <div class="kicker c-cyan" data-i18n="kicker10">10 · Quick check</div>
+    <h2 class="sec-title" data-i18n="title10">See what stuck</h2>
+    <p class="lede" data-i18n="lede10">6 questions. No grade, no pressure — just a gut check.</p>
 
     <div class="quiz-shell">
       <div class="quiz-progress" id="quizProgress"></div>
@@ -486,7 +565,7 @@ const T = {
     eyebrow: `NO LECTURES · JUST FACTS`,
     heroH1: `Drugs.<br>The stuff people<br><em>don't</em> tell you straight.`,
     heroP: `Alcohol, vaping, weed, pills — you're going to hear about all of it before you're an adult. This is the honest version: how it actually works, what the real risks are, and what to say when you don't want in.`,
-    heroScroll: `scroll — 10 min read`,
+    heroScroll: `scroll — 21 min read`,
 
     kicker01: `01 · The science, simplified`, title01: `Why this stuff hooks people`,
     lede01: `Every drug — including nicotine, alcohol, and caffeine — works on the same system in your brain. Understanding it makes the pressure make a lot more sense.`,
@@ -524,7 +603,7 @@ const T = {
     mythTag: `Myth`, factTag: `Fact`, tapReveal: `tap to reveal →`, tapBack: `tap to flip back`,
 
     kicker04: `04 · Know what you're looking at`, title04: `The substances you'll actually run into`,
-    lede04: `No dosing info, no "how to" — just what each one is, and the risks that matter most at your age.`,
+    lede04: `No dosing info, no "how to" — just what each one is, what it actually does, and the risks that matter most at your age.`,
 
     kicker05: `05 · Real scenes, real lines`, title05: `What to actually say`,
     lede05: `Saying no doesn't have to be a whole speech. Short, confident, and boring works best — it ends the conversation fast.`,
@@ -539,7 +618,10 @@ const T = {
     kicker08: `08 · Talk to someone`, title08: `You don't have to figure this out alone`,
     lede08: `A trusted adult — a parent, school counselor, coach, doctor — is always step one. The lines below are free and staffed by people who won't judge you. Confidentiality rules vary by service — most helplines won't share what you say, but ask directly at the start of the call if you want to be sure before you talk.`,
 
-    kicker09: `09 · Quick check`, title09: `See what stuck`, lede09: `6 questions. No grade, no pressure — just a gut check.`,
+    kicker09: `09 · What people actually search`, title09: `Questions you'd type into Google`,
+    lede09: `The stuff you'd search at 1am instead of asking someone out loud. Tap to expand.`,
+
+    kicker10: `10 · Quick check`, title10: `See what stuck`, lede10: `6 questions. No grade, no pressure — just a gut check.`,
     quizYourScore: `your score`, quizRetryLabel: `RETAKE ↺`, quizNext: `NEXT →`, quizSeeScore: `SEE SCORE`,
     quizPerfect: `Perfect. You know this better than most adults.`,
     quizGood: `Solid grasp of the essentials — nice work.`,
@@ -554,7 +636,7 @@ const T = {
     eyebrow: `FĂRĂ PREDICI · DOAR FAPTE`,
     heroH1: `Despre droguri.<br>Ce nu-ți spune<br>nimeni, <em>pe bune</em>.`,
     heroP: `Alcool, vaping, iarbă, pastile — o să auzi despre toate astea înainte să fii adult. Asta e versiunea sinceră: cum funcționează de fapt, care sunt riscurile reale și ce poți spune când nu vrei să intri în joc.`,
-    heroScroll: `derulează — 10 min de citit`,
+    heroScroll: `derulează — 21 min de citit`,
 
     kicker01: `01 · Știința, pe scurt`, title01: `De ce te agață`,
     lede01: `Orice drog — inclusiv nicotina, alcoolul și cofeina — acționează pe același sistem din creier. Dacă înțelegi cum funcționează, presiunea din jur are mult mai mult sens.`,
@@ -592,7 +674,7 @@ const T = {
     mythTag: `Mit`, factTag: `Fapt`, tapReveal: `atinge pentru răspuns →`, tapBack: `atinge pentru a întoarce`,
 
     kicker04: `04 · Știi cu ce ai de-a face`, title04: `Substanțele pe care chiar le vei întâlni`,
-    lede04: `Fără informații despre doze, fără „cum să” — doar ce este fiecare și riscurile care contează cel mai mult la vârsta ta.`,
+    lede04: `Fără informații despre doze, fără „cum să” — doar ce este fiecare, ce face de fapt și riscurile care contează cel mai mult la vârsta ta.`,
 
     kicker05: `05 · Scene reale, replici reale`, title05: `Ce să spui, mai exact`,
     lede05: `Să spui nu, nu trebuie să fie un discurs întreg. Scurt, sigur pe tine și „plictisitor” funcționează cel mai bine — încheie conversația rapid.`,
@@ -607,7 +689,10 @@ const T = {
     kicker08: `08 · Vorbește cu cineva`, title08: `Nu trebuie să treci prin asta singur(ă)`,
     lede08: `Un adult de încredere — un părinte, consilierul școlar, antrenorul, un medic — e mereu primul pas. Liniile de mai jos sunt gratuite și te ajută oameni care nu te vor judeca. Regulile de confidențialitate diferă de la un serviciu la altul — majoritatea liniilor de asistență nu vor divulga ce spui, dar întreabă direct la începutul apelului dacă vrei să fii sigur(ă) înainte să vorbești.`,
 
-    kicker09: `09 · Verificare rapidă`, title09: `Vezi ce a rămas`, lede09: `6 întrebări. Fără notă, fără presiune — doar un test rapid.`,
+    kicker09: `09 · Ce caută lumea de fapt`, title09: `Întrebări pe care le-ai căuta pe Google`,
+    lede09: `Lucrurile pe care le-ai căuta la ora 1 noaptea în loc să întrebi pe cineva cu voce tare. Atinge pentru a extinde.`,
+
+    kicker10: `10 · Verificare rapidă`, title10: `Vezi ce a rămas`, lede10: `6 întrebări. Fără notă, fără presiune — doar un test rapid.`,
     quizYourScore: `scorul tău`, quizRetryLabel: `RELUARE ↺`, quizNext: `URMĂTOAREA →`, quizSeeScore: `VEZI SCORUL`,
     quizPerfect: `Perfect. Știi asta mai bine decât mulți adulți.`,
     quizGood: `Ai o înțelegere solidă a esențialului — treabă bună.`,
@@ -699,33 +784,121 @@ function renderMyths(lang){
 const substances = [
   {icon:"🍺", color:"#ffd23f",
    en:{name:"Alcohol", legal:"Age-restricted", desc:"The most common substance teens encounter — legal for adults, but the teen brain and body process it differently.",
+     effects:"Initial relaxation and lowered inhibitions, followed by slurred speech, slowed reaction time, and impaired coordination as more is consumed.",
      risks:["Impairs judgment and coordination fast, raising injury and crash risk","Teen drinking is linked to disrupted brain development","Mixing with other substances sharply raises overdose risk","Binge drinking can cause alcohol poisoning, which can be fatal"]},
    ro:{name:"Alcoolul", legal:"Restricționat pe vârstă", desc:"Cea mai întâlnită substanță pentru adolescenți — legală pentru adulți, dar creierul și corpul unui adolescent o procesează diferit.",
+     effects:"Relaxare inițială și inhibiții scăzute, urmate de vorbire neclară, timp de reacție încetinit și coordonare afectată pe măsură ce se consumă mai mult.",
      risks:["Afectează rapid judecata și coordonarea, crescând riscul de accidentări","Consumul de alcool la adolescenți e asociat cu perturbarea dezvoltării creierului","Combinarea cu alte substanțe crește puternic riscul de supradoză","Consumul excesiv (binge drinking) poate provoca intoxicație alcoolică, care poate fi fatală"]}},
   {icon:"💨", color:"#00e5c9",
-   en:{name:"Nicotine & vaping", legal:"Age-restricted", desc:`Marketed as "safer" than smoking — but nicotine itself is one of the most addictive substances there is.`,
-     risks:["Teen brains build nicotine dependence faster than adult brains","Can prime the brain to be more sensitive to other addictive substances","Vape liquid can contain heavy metals and lung-irritating chemicals","Withdrawal (irritability, anxiety, cravings) can start within hours"]},
-   ro:{name:"Nicotina și vapatul", legal:"Restricționat pe vârstă", desc:`Promovat ca fiind „mai sigur” decât fumatul — dar nicotina în sine e una dintre cele mai adictive substanțe care există.`,
-     risks:["Creierul adolescentin dezvoltă dependența de nicotină mai repede decât cel adult","Poate face creierul mai sensibil la alte substanțe care creează dependență","Lichidul din vape poate conține metale grele și substanțe care irită plămânii","Sevrajul (iritabilitate, anxietate, poftă) poate începe în câteva ore"]}},
+   en:{name:"Nicotine — vaping & pouches", legal:"Age-restricted", desc:`Marketed as "safer" than smoking — but nicotine itself is one of the most addictive substances there is. Nicotine pouches (like Zyn) are a newer form placed between the gum and lip, with no smoke or vapor at all.`,
+     effects:"A brief head rush or calming sensation, followed quickly by cravings as the effect wears off — usually within an hour.",
+     risks:["Teen brains build nicotine dependence faster than adult brains","Can prime the brain to be more sensitive to other addictive substances","Vape liquid can contain heavy metals and lung-irritating chemicals; some pouches have tested positive for carcinogens too","Pouches produce no visible cloud or smell, making them far easier to use undetected — which isn't the same as being safer","Withdrawal (irritability, anxiety, cravings) can start within hours"]},
+   ro:{name:"Nicotina — vaping și pliculețe", legal:"Restricționat pe vârstă", desc:`Promovat ca fiind „mai sigur” decât fumatul — dar nicotina în sine e una dintre cele mai adictive substanțe care există. Pliculețele cu nicotină (precum Zyn) sunt o formă mai nouă, plasate între gingie și buză, fără fum sau vapori deloc.`,
+     effects:"O senzație scurtă de amețeală sau calm, urmată rapid de poftă pe măsură ce efectul dispare — de obicei în decurs de o oră.",
+     risks:["Creierul adolescentin dezvoltă dependența de nicotină mai repede decât cel adult","Poate face creierul mai sensibil la alte substanțe care creează dependență","Lichidul din vape poate conține metale grele și substanțe care irită plămânii; unele pliculețe au fost testate pozitiv și pentru substanțe cancerigene","Pliculețele nu produc nor vizibil sau miros, ceea ce le face mult mai ușor de folosit nedetectat — asta nu înseamnă că sunt mai sigure","Sevrajul (iritabilitate, anxietate, poftă) poate începe în câteva ore"]}},
+  {icon:"☕", color:"#d9a15c",
+   en:{name:"Caffeine & energy drinks", legal:"Legal, no age restriction in most places", desc:"The most normalized stimulant of all — but energy drinks and pre-workout supplements can contain far more caffeine than a cup of coffee, often stacked with other stimulants.",
+     effects:"Increased alertness and energy within 15–45 minutes, followed by a possible crash, jitteriness, or trouble sleeping hours later.",
+     risks:["A teen's recommended daily caffeine limit (about 100mg) is easy to exceed with just one strong energy drink","Can cause a racing heart, anxiety, and sleep problems, especially combined with stress","Mixing energy drinks with alcohol masks how intoxicated you actually feel, raising overdose and injury risk",`"Extra strength" and pre-workout products are often unclear about their actual caffeine content`]},
+   ro:{name:"Cofeina și băuturile energizante", legal:"Legal, fără restricție de vârstă în majoritatea locurilor", desc:"Cel mai normalizat stimulent dintre toate — dar băuturile energizante și suplimentele pre-antrenament pot conține mult mai multă cofeină decât o cafea, adesea combinate cu alți stimulenți.",
+     effects:"Alertă și energie crescute în 15–45 de minute, urmate posibil de o „cădere”, neliniște sau probleme de somn ore mai târziu.",
+     risks:["Limita zilnică recomandată de cofeină pentru un adolescent (aproximativ 100mg) e ușor de depășit cu o singură băutură energizantă puternică","Poate provoca bătăi rapide ale inimii, anxietate și probleme de somn, mai ales combinat cu stresul","Combinarea băuturilor energizante cu alcoolul maschează cât de „băut” ești de fapt, crescând riscul de supradoză și accidentare","Produsele „extra strength” și pre-antrenament adesea nu sunt clare în privința conținutului real de cofeină"]}},
   {icon:"🌿", color:"#8fce8f",
    en:{name:"Cannabis", legal:"Varies by location", desc:"Legal status varies a lot by country and state — legality doesn't equal risk-free, especially for a developing brain.",
+     effects:"Relaxation, altered perception of time, and increased appetite are common, but so are anxiety, paranoia, or a racing heart, depending on the person and the product.",
      risks:["Regular teen use is linked to lower attention and memory performance","Raises risk of anxiety and, in vulnerable people, psychosis","Today's products are often far more potent than in past decades","Driving impairment can last hours after the high feels like it's worn off"]},
    ro:{name:"Canabisul", legal:"Diferă în funcție de țară", desc:"Statutul legal diferă mult între țări — legalitatea nu înseamnă lipsă de risc, mai ales pentru un creier în dezvoltare.",
+     effects:"Relaxare, percepție alterată a timpului și apetit crescut sunt frecvente, dar la fel sunt anxietatea, paranoia sau bătăile rapide ale inimii, în funcție de persoană și produs.",
      risks:["Consumul regulat la adolescenți e asociat cu performanțe mai slabe de atenție și memorie","Crește riscul de anxietate și, la persoanele vulnerabile, de psihoză","Produsele actuale sunt adesea mult mai concentrate decât în trecut","Afectarea capacității de a conduce poate dura ore, chiar și după ce senzația de „high” pare să fi trecut"]}},
+  {icon:"⚡", color:"#ff8c69",
+   en:{name:"Stimulants (cocaine, MDMA, meth, misused ADHD meds)", legal:"Illegal / prescription-only", desc:"Drugs that speed up the brain and body — includes cocaine, MDMA/ecstasy, meth, and ADHD medication like Adderall or Ritalin taken without a prescription, often to study or pull an all-nighter.",
+     effects:"A rush of energy, confidence, and euphoria at first, followed by a hard comedown that can include exhaustion, irritability, or low mood.",
+     risks:["Can cause dangerous spikes in heart rate and blood pressure, even in healthy young people","Street samples are frequently cut with other substances, including fentanyl","Taking a classmate's ADHD medication feels \"safer\" than street drugs, but misuse still carries real cardiovascular and psychiatric risk","Mixing with alcohol or other drugs sharply increases risk of heart failure"]},
+   ro:{name:"Stimulente (cocaină, MDMA, metamfetamină, medicamente ADHD folosite abuziv)", legal:"Ilegal / doar cu rețetă", desc:"Droguri care accelerează creierul și corpul — include cocaina, MDMA/ecstasy, metamfetamina și medicamente pentru ADHD precum Adderall sau Ritalin, luate fără rețetă, adesea pentru a învăța sau a sta treaz toată noaptea.",
+     effects:"Un val de energie, încredere și euforie la început, urmat de o „cădere” dură care poate include epuizare, iritabilitate sau stare de spirit scăzută.",
+     risks:["Pot provoca creșteri periculoase ale ritmului cardiac și tensiunii arteriale, chiar și la tineri sănătoși","Probele de stradă sunt frecvent amestecate cu alte substanțe, inclusiv fentanil","Luarea medicamentului ADHD al unui coleg pare „mai sigură” decât drogurile de stradă, dar abuzul are riscuri cardiovasculare și psihiatrice reale","Combinarea cu alcool sau alte droguri crește puternic riscul de insuficiență cardiacă"]}},
+  {icon:"💤", color:"#8f8fd1",
+   en:{name:"Opioids (heroin, illicit fentanyl)", legal:"Illegal", desc:"Powerful depressants that slow breathing and create a sense of numbness or euphoria. At the center of the current overdose crisis, especially in North America because of illicit fentanyl — increasingly cut with xylazine (\"tranq\"), an animal sedative that has also been detected in a small number of European countries.",
+     effects:"A wave of relaxation and pain relief that can quickly turn into dangerously slowed breathing — the line between the two is much thinner than people expect.",
+     risks:["Slows breathing enough to be fatal, even for first-time users","Illicit fentanyl now turns up in pills, powders, and even other drugs without the user knowing","Xylazine contamination isn't reversed by naloxone, but naloxone should still be given right away since opioids are almost always present too","Repeated xylazine exposure can cause severe skin wounds that are unrelated to injection site","Naloxone (Narcan) can reverse an opioid overdose if given in time — knowing it exists can save a life"]},
+   ro:{name:"Opioide (heroină, fentanil ilicit)", legal:"Ilegal", desc:"Depresive puternice care încetinesc respirația și creează o senzație de amorțeală sau euforie. În centrul crizei actuale de supradoze, mai ales în America de Nord, din cauza fentanilului ilicit — amestecat tot mai des cu xilazină („tranq”), un sedativ pentru animale, detectat și într-un număr mic de țări europene.",
+     effects:"Un val de relaxare și ameliorare a durerii care se poate transforma rapid într-o respirație periculos de încetinită — linia dintre cele două e mult mai subțire decât se crede.",
+     risks:["Încetinește respirația suficient cât să fie fatal, chiar și la prima utilizare","Fentanilul ilicit se găsește acum în pastile, pulberi și chiar în alte droguri, fără ca utilizatorul să știe","Contaminarea cu xilazină nu e inversată de naloxonă, dar naloxona tot trebuie administrată imediat, pentru că opioidele sunt aproape mereu prezente și ele","Expunerea repetată la xilazină poate provoca răni grave ale pielii, chiar și în afara zonei de injectare","Naloxona (Narcan) poate inversa o supradoză de opioide dacă e administrată la timp — doar faptul că știi că există poate salva o viață"]}},
+  {icon:"🌙", color:"#7a8fc4",
+   en:{name:"Benzodiazepines (Xanax, Valium)", legal:"Illegal without prescription", desc:"Anti-anxiety medications, often taken from a family member's prescription without them knowing. Calming short-term, but genuinely dangerous to combine with other substances or stop suddenly.",
+     effects:"A sense of calm and reduced anxiety, along with drowsiness and slowed reflexes that can last several hours.",
+     risks:["Combining with opioids or alcohol is one of the leading causes of overdose deaths — even at doses that seem small","The body builds tolerance and physical dependence quickly, sometimes within a few weeks of regular use","Stopping suddenly after heavy use can cause dangerous withdrawal, including seizures","Taking a family member's prescription without their knowledge is far more common — and far riskier — than people assume"]},
+   ro:{name:"Benzodiazepine (Xanax, Valium)", legal:"Ilegal fără rețetă", desc:"Medicamente pentru anxietate, luate adesea din rețeta unui membru al familiei, fără știrea acestuia. Calmante pe termen scurt, dar cu adevărat periculoase dacă sunt combinate cu alte substanțe sau oprite brusc.",
+     effects:"O senzație de calm și anxietate redusă, împreună cu somnolență și reflexe încetinite care pot dura câteva ore.",
+     risks:["Combinarea cu opioide sau alcool e una dintre principalele cauze de deces prin supradoză — chiar și la doze care par mici","Organismul dezvoltă toleranță și dependență fizică rapid, uneori în câteva săptămâni de utilizare regulată","Oprirea bruscă după utilizare intensă poate provoca sevraj periculos, inclusiv convulsii","Luarea rețetei unui membru al familiei fără știrea lui e mult mai frecventă — și mult mai riscantă — decât se crede"]}},
+  {icon:"💧", color:"#d4788a",
+   en:{name:`GHB & Rohypnol ("date rape drugs")`, legal:"Illegal", desc:"Powerful sedatives, colorless and often odorless, historically linked to drink-spiking. Extremely dangerous even in small amounts, especially combined with alcohol.",
+     effects:"Sedation and memory loss are the intended effects when used to spike a drink — which is exactly why they're dangerous rather than just \"relaxing.\"",
+     risks:["Can cause unconsciousness, seizures, or fatal respiratory depression, especially mixed with alcohol","Often causes partial or total memory loss of the time period affected","The dose that causes sedation and the dose that causes overdose are dangerously close together","If you suspect you or a friend has been drugged, get to a safe place and seek medical help immediately — this is a medical emergency, not something to sleep off"]},
+   ro:{name:"GHB și Rohypnol („drogurile violului”)", legal:"Ilegal", desc:"Sedative puternice, incolore și adesea inodore, asociate istoric cu „drogarea” băuturilor. Extrem de periculoase chiar și în cantități mici, mai ales combinate cu alcool.",
+     effects:"Sedarea și pierderea memoriei sunt efectele urmărite atunci când sunt folosite pentru a „droga” o băutură — exact de aceea sunt periculoase, nu doar „relaxante”.",
+     risks:["Pot provoca pierderea cunoștinței, convulsii sau stop respirator fatal, mai ales combinate cu alcool","Provoacă adesea pierderea parțială sau totală a memoriei pentru perioada afectată","Doza care provoacă sedare și doza care provoacă supradoză sunt periculos de apropiate","Dacă suspectezi că tu sau un prieten ați fost drogați, ajungeți într-un loc sigur și cereți ajutor medical imediat — asta e o urgență medicală, nu ceva de „dormit”"]}},
+  {icon:"🍄", color:"#b48cf2",
+   en:{name:"Hallucinogens (LSD, mushrooms)", legal:"Illegal", desc:"Substances that alter perception, thoughts, and mood — can cause intense visual and sensory changes lasting several hours. LSD is often sold as small paper squares (\"blotters\" or \"tabs\").",
+     effects:"Visual and sensory distortions, altered sense of time, and shifting emotions that can swing between euphoria and intense fear within the same experience.",
+     risks:[`Effects are unpredictable and can vary wildly even for the same person, same amount`,`Can trigger frightening, disorienting experiences ("bad trips") including panic and paranoia`,"Impaired judgment during the experience raises risk of accidents and injury","Can be especially destabilizing for anyone with a personal or family history of psychosis"]},
+   ro:{name:"Halucinogene (LSD, ciuperci)", legal:"Ilegal", desc:"Substanțe care modifică percepția, gândurile și starea de spirit — pot provoca schimbări vizuale și senzoriale intense, care durează câteva ore. LSD-ul e vândut adesea sub formă de mici bucăți de hârtie („timbre”).",
+     effects:"Distorsiuni vizuale și senzoriale, percepție alterată a timpului și emoții schimbătoare, care pot oscila între euforie și frică intensă în cadrul aceleiași experiențe.",
+     risks:["Efectele sunt imprevizibile și pot varia enorm chiar și la aceeași persoană, la aceeași cantitate","Pot declanșa experiențe înspăimântătoare, dezorientante („bad trip”), inclusiv panică și paranoia","Judecata afectată în timpul experienței crește riscul de accidente și răniri","Pot fi deosebit de destabilizatoare pentru cineva cu istoric personal sau familial de psihoză"]}},
+  {icon:"🌀", color:"#7ec4d6",
+   en:{name:"Dissociatives (ketamine, PCP, DXM, nitrous)", legal:"Illegal / restricted (some sold OTC)", desc:`Substances that create a sense of detachment from your body or surroundings — includes ketamine, PCP, DXM (found in some cough medicines), and nitrous oxide ("whippits").`,
+     effects:"A feeling of detachment from your body or surroundings, numbness, and distorted perception — often described as watching yourself from outside.",
+     risks:["Can cause a total loss of physical coordination, raising the risk of injury or choking","DXM misuse (far more than the medical dose) can cause dangerous heart rhythm changes","Repeated nitrous oxide use can cause nerve damage by depleting vitamin B12, sometimes permanently","The disconnected feeling can mask serious injury or overdose symptoms while they're happening"]},
+   ro:{name:"Disociative (ketamină, PCP, DXM, protoxid de azot)", legal:"Ilegal / restricționat (unele fără rețetă)", desc:"Substanțe care creează o senzație de detașare de propriul corp sau de mediul înconjurător — include ketamina, PCP, DXM (prezent în unele siropuri de tuse) și protoxidul de azot („palon”).",
+     effects:"O senzație de detașare de propriul corp sau de mediul înconjurător, amorțeală și percepție distorsionată — descrisă adesea ca privindu-te pe tine însuți din exterior.",
+     risks:["Poate provoca o pierdere totală a coordonării fizice, crescând riscul de accidentare sau sufocare","Abuzul de DXM (mult peste doza medicală) poate provoca modificări periculoase ale ritmului cardiac","Consumul repetat de protoxid de azot poate cauza leziuni ale nervilor prin epuizarea vitaminei B12, uneori permanent","Senzația de detașare poate masca simptome grave de accidentare sau supradoză chiar în timp ce se întâmplă"]}},
+  {icon:"🧴", color:"#8aa8bd",
+   en:{name:"Inhalants (glue, aerosols, solvents)", legal:"Legal products, illegal to misuse", desc:"Ordinary household products — glue, spray cans, cleaning products — breathed in for a quick high. Easy to access, which is exactly what makes them dangerous.",
+     effects:"A brief, intense head rush lasting only minutes, which is exactly why people use more repeatedly in a short period — sharply raising the danger.",
+     risks:[`Can cause sudden death from heart failure, even on the very first use ("sudden sniffing death")`,"Starves the brain and body of oxygen","Can cause permanent damage to the brain, liver, and kidneys with repeated use","Often used by younger teens specifically because they're cheap and accessible, not because they're safer"]},
+   ro:{name:"Inhalante (adeziv, spray-uri, solvenți)", legal:"Produse legale, folosirea abuzivă e ilegală", desc:"Produse casnice obișnuite — adeziv, spray-uri, produse de curățenie — inhalate pentru un efect rapid. Ușor de procurat, exact ceea ce le face periculoase.",
+     effects:"O senzație scurtă și intensă de amețeală, care durează doar câteva minute — exact motivul pentru care oamenii repetă consumul într-un timp scurt, ceea ce crește puternic pericolul.",
+     risks:["Pot provoca moarte subită prin insuficiență cardiacă, chiar și la prima utilizare","Privează creierul și corpul de oxigen","Pot cauza leziuni permanente ale creierului, ficatului și rinichilor în urma utilizării repetate","Sunt folosite adesea de adolescenți mai mici tocmai pentru că sunt ieftine și accesibile, nu pentru că sunt mai sigure"]}},
+  {icon:"⚗️", color:"#e0956b",
+   en:{name:`Synthetic drugs ("Spice", bath salts)`, legal:"Often marketed as legal, frequently banned", desc:`Lab-made chemicals designed to mimic cannabis or stimulants, often sold as "legal highs" through messaging apps and disguised as supplements. The chemical formula changes constantly to dodge bans, so effects are wildly inconsistent.`,
+     effects:`Meant to mimic cannabis or stimulant effects, but reactions are far more intense and unpredictable, sometimes with no noticeable "high" before serious symptoms appear.`,
+     risks:["Far more unpredictable than the natural substances they're designed to imitate","Linked to seizures, extreme agitation, and psychotic episodes, even in first-time users",`"Legal" or "herbal" labeling has nothing to do with how safe it actually is`,"Because formulas change constantly, no one — including the seller — reliably knows what's in it"]},
+   ro:{name:"Droguri sintetice („Spice”, săruri de baie)", legal:"Adesea promovate ca legale, frecvent interzise ulterior", desc:"Substanțe chimice de laborator create pentru a imita canabisul sau stimulentele, vândute adesea ca „droguri legale” prin aplicații de mesagerie și mascate drept suplimente. Formula chimică se schimbă constant pentru a evita interdicțiile, așa că efectele sunt extrem de inconsistente.",
+     effects:"Menite să imite efectele canabisului sau ale stimulentelor, dar reacțiile sunt mult mai intense și imprevizibile, uneori fără un „high” vizibil înainte să apară simptome grave.",
+     risks:["Mult mai imprevizibile decât substanțele naturale pe care încearcă să le imite","Asociate cu convulsii, agitație extremă și episoade psihotice, chiar și la prima utilizare","Eticheta „legal” sau „pe bază de plante” nu are nicio legătură cu cât de sigur e de fapt","Pentru că formula se schimbă constant, nimeni — nici măcar vânzătorul — nu știe sigur ce conține"]}},
+  {icon:"🌱", color:"#a3b56e",
+   en:{name:"Kratom", legal:"Legal in many places, restricted in others", desc:`A plant-based substance sold legally in some vape shops and gas stations, marketed as a natural energy booster or pain reliever. "Legal" and "natural" don't mean risk-free.`,
+     effects:"Mild stimulant effects at first, shifting toward opioid-like relaxation and pain relief at higher amounts — with the same dependence risk that implies.",
+     risks:["Acts on the same brain receptors as opioids and can lead to dependence with regular use","Unregulated products mean strength and purity vary a lot between batches","Linked to seizures and liver damage, especially combined with other substances","Sold as a supplement, so it skips the safety testing required for medications"]},
+   ro:{name:"Kratom", legal:"Legal în multe locuri, restricționat în altele", desc:"O substanță pe bază de plante, vândută legal în unele magazine de vape-uri și benzinării, promovată ca stimulent natural de energie sau calmant. „Legal” și „natural” nu înseamnă lipsit de risc.",
+     effects:"Efecte stimulante ușoare la început, care se transformă în relaxare și ameliorare a durerii asemănătoare opioidelor la cantități mai mari — cu același risc de dependență pe care îl implică asta.",
+     risks:["Acționează pe aceiași receptori din creier ca opioidele și poate duce la dependență cu utilizare regulată","Produsele nereglementate înseamnă că puterea și puritatea variază mult între loturi","Asociat cu convulsii și afectarea ficatului, mai ales combinat cu alte substanțe","Vândut ca supliment, așa că scapă de testele de siguranță cerute pentru medicamente"]}},
+  {icon:"🏋️", color:"#c4986a",
+   en:{name:"Performance-enhancing drugs (steroids)", legal:"Illegal without prescription", desc:"Synthetic hormones used to build muscle faster, often sourced online or at gyms with no medical oversight. Marketed around body image and athletic performance.",
+     effects:"Increased muscle mass and strength over weeks of use — but the visible effects hide changes happening internally to hormones, heart, and liver.",
+     risks:["Can permanently stunt growth if used before the body finishes developing","Disrupts natural hormone production, with lasting effects on fertility","Linked to serious heart and liver strain, even in young, otherwise healthy users","Associated with significant mood changes, including irritability and aggression"]},
+   ro:{name:"Substanțe pentru performanță (steroizi anabolizanți)", legal:"Ilegal fără rețetă", desc:"Hormoni sintetici folosiți pentru a construi mușchi mai rapid, procurați adesea online sau din săli de sport, fără supraveghere medicală. Promovați în jurul imaginii corporale și performanței sportive.",
+     effects:"Masă musculară și forță crescute pe parcursul a săptămâni de utilizare — dar efectele vizibile ascund schimbările care au loc intern la nivelul hormonilor, inimii și ficatului.",
+     risks:["Pot opri permanent creșterea dacă sunt folosiți înainte ca organismul să termine de dezvoltat","Perturbă producția naturală de hormoni, cu efecte de durată asupra fertilității","Asociați cu suprasolicitarea inimii și ficatului, chiar și la tineri altfel sănătoși","Asociați cu schimbări semnificative de dispoziție, inclusiv iritabilitate și agresivitate"]}},
   {icon:"💊", color:"#ff5470",
    en:{name:"Prescription misuse", legal:"Illegal without prescription", desc:"Taking a medication that isn't prescribed to you, or more than prescribed — includes painkillers, stimulants, and anxiety medication.",
+     effects:"Depends entirely on the specific medication — but taken outside medical guidance, the same drug that helps one person can sedate, impair, or harm another.",
      risks:["A dose that's safe for one person can be dangerous for another","Mixing with alcohol dramatically raises overdose risk","Counterfeit pills sold online or by peers are common and often mislabeled","Even one misuse can be lethal if the pill isn't what it's claimed to be"]},
    ro:{name:"Abuzul de medicamente cu rețetă", legal:"Ilegal fără rețetă", desc:"Să iei un medicament care nu ți-a fost prescris ție, sau mai mult decât ți s-a prescris — include analgezice, stimulente și medicamente pentru anxietate.",
+     effects:"Depinde complet de medicamentul specific — dar luat în afara îndrumării medicale, același medicament care ajută o persoană poate seda, afecta sau răni pe alta.",
      risks:["O doză sigură pentru o persoană poate fi periculoasă pentru alta","Combinarea cu alcoolul crește dramatic riscul de supradoză","Pastilele contrafăcute vândute online sau de colegi sunt frecvente și adesea etichetate greșit","Chiar și o singură utilizare greșită poate fi letală dacă pastila nu e ce pretinde că este"]}},
   {icon:"⚠️", color:"#ff5470",
    en:{name:"Unknown / street substances", legal:"Illegal", desc:"Powders, pills, or blotters from an unverified source — you genuinely cannot know what's in them by looking.",
+     effects:"Impossible to predict — the effects depend entirely on what's actually in it, which even the seller often doesn't know for certain.",
      risks:[`Many are now cut with fentanyl, which is lethal in extremely small amounts`,"No visual or taste test can detect contamination",`A previous "good" experience doesn't predict the next batch is safe`,"This is the highest-risk category for accidental death, even for first-time use"]},
    ro:{name:"Substanțe necunoscute / de stradă", legal:"Ilegal", desc:"Pulberi, pastile sau timbre provenite dintr-o sursă neverificată — pur și simplu nu poți ști ce conțin doar privindu-le.",
+     effects:"Imposibil de prezis — efectele depind complet de ce conține de fapt, lucru pe care nici măcar vânzătorul nu-l știe adesea cu certitudine.",
      risks:["Multe sunt acum „tăiate” cu fentanil, care e letal în cantități extrem de mici","Niciun test vizual sau de gust nu poate detecta contaminarea","O experiență anterioară „bună” nu garantează că următorul lot e sigur","E categoria cu cel mai mare risc de deces accidental, chiar și la prima utilizare"]}},
 ];
 const subGrid = document.getElementById('subGrid');
 function renderSubstances(lang){
   subGrid.innerHTML='';
+  const labels = {en:{effects:'Effects', risks:'Risks'}, ro:{effects:'Efecte', risks:'Riscuri'}};
   substances.forEach(s=>{
     const d = s[lang];
     const el = document.createElement('div');
@@ -737,6 +910,8 @@ function renderSubstances(lang){
         <span class="sub-legal">${d.legal}</span>
       </div>
       <p>${d.desc}</p>
+      <div class="sub-effects"><span class="sub-label">${labels[lang].effects}</span>${d.effects}</div>
+      <span class="sub-label" style="display:block; margin-bottom:6px;">${labels[lang].risks}</span>
       <ul class="sub-list">${d.risks.map(r=>`<li>${r}</li>`).join('')}</ul>`;
     subGrid.appendChild(el);
   });
@@ -790,6 +965,8 @@ function renderSigns(lang){
 const emgSteps = [
   {en:{t:"Call for emergency help immediately", d:`If someone is unresponsive, struggling to breathe, having a seizure, or you're not sure — call local emergency services right away. Don't wait to see if they'll "sleep it off."`},
    ro:{t:"Sună imediat la urgențe", d:`Dacă cineva nu reacționează, are dificultăți de respirație, are o criză convulsivă, sau pur și simplu nu ești sigur(ă) — sună imediat la serviciile locale de urgență. Nu aștepta să vezi dacă „îi trece dormind”.`}},
+  {en:{t:"Give naloxone if it's available", d:"If you have access to naloxone (Narcan) and think an opioid might be involved, use it right away — it's safe to give even if you're not sure, and it can buy critical time before help arrives."},
+   ro:{t:"Administrează naloxonă, dacă ai la îndemână", d:"Dacă ai acces la naloxonă (Narcan) și crezi că ar putea fi implicat un opioid, folosește-o imediat — e sigură de administrat chiar dacă nu ești sigur(ă), și poate câștiga timp esențial până ajunge ajutorul."}},
   {en:{t:"Stay with them", d:"Don't leave someone alone, even if they seem to recover. Some reactions get worse before they get better."},
    ro:{t:"Rămâi lângă persoană", d:"Nu lăsa pe nimeni singur, chiar dacă pare că-și revine. Unele reacții se agravează înainte să se amelioreze."}},
   {en:{t:"Turn them on their side", d:"If they're drowsy or vomiting, the recovery position (on their side, head tilted back slightly) helps stop choking."},
@@ -828,6 +1005,63 @@ function renderHelp(lang){
     el.className='help-card';
     el.innerHTML = `<div class="help-text"><div class="htitle">${d.title}</div><div class="hsub">${d.sub}</div></div><div class="help-num">${num}</div>`;
     helpList.appendChild(el);
+  });
+}
+
+/* ---------------- FAQ (real questions teens actually search) ---------------- */
+const faqs = [
+  {en:{q:"Does weed actually kill brain cells?", a:"Not exactly — but regular use during the teen years is linked to measurable drops in memory and attention, because it interferes with a brain that's still wiring itself. \"Kills brain cells\" oversimplifies it, but \"no effect at all\" is just as wrong."},
+   ro:{q:"Iarba chiar omoară celule din creier?", a:"Nu chiar — dar consumul regulat în adolescență e asociat cu scăderi măsurabile ale memoriei și atenției, pentru că interferează cu un creier încă în plină „cablare”. „Omoară celule” e o simplificare, dar „nu are niciun efect” e la fel de greșit."}},
+  {en:{q:"What does being high actually feel like?", a:"It depends entirely on the substance, the amount, the person, and even your mood beforehand — which is exactly the problem. There's no single \"high\" feeling, and that unpredictability is a real risk, not just a detail."},
+   ro:{q:"Cum e de fapt să fii „high”?", a:"Depinde complet de substanță, de cantitate, de persoană și chiar de starea ta de dinainte — și exact asta e problema. Nu există o singură senzație de „high”, iar imprevizibilitatea asta e un risc real, nu doar un detaliu."}},
+  {en:{q:"Will vaping show up on a drug test?", a:`Standard drug panels don't usually test for nicotine, but some school, sports, and workplace tests do specifically. Either way, "will I get caught" isn't the most useful question — whether dependence is already building without you noticing is.`},
+   ro:{q:"Vapatul apare la un test antidrog?", a:"Testele standard nu verifică de obicei nicotina, dar unele teste de la școală, sport sau angajator o fac special. Oricum, întrebarea mai utilă nu e „mă prind”, ci dacă dependența se instalează deja fără să observi."}},
+  {en:{q:"Can vaping or smoking stunt your growth?", a:"Nicotine hasn't been shown to stop bone growth directly, but it does interfere with brain development happening at the same time — arguably the bigger, longer-lasting cost."},
+   ro:{q:"Vapatul sau fumatul îți opresc creșterea?", a:"Nicotina în sine nu s-a dovedit că oprește direct creșterea oaselor, dar interferează cu dezvoltarea creierului care se întâmplă în același timp — iar asta e, probabil, costul mai mare și mai de durată."}},
+  {en:{q:"What is Molly / MDMA?", a:"A stimulant with mild hallucinogenic effects, usually linked to festivals and parties. Street samples are frequently mixed with other substances the buyer never agreed to — that's where most of the real danger comes from."},
+   ro:{q:"Ce e Molly / MDMA?", a:"Un stimulent cu efecte halucinogene ușoare, asociat de obicei cu festivaluri și petreceri. Probele de stradă sunt frecvent amestecate cu alte substanțe pe care cumpărătorul nu le-a acceptat niciodată — de acolo vine cea mai mare parte a pericolului real."}},
+  {en:{q:"What is fentanyl and why does everyone keep talking about it?", a:"An opioid so strong that an amount smaller than a few grains of salt can be fatal. It's increasingly found mixed into other drugs — pills, powders, even things sold as something else entirely — without the buyer knowing."},
+   ro:{q:"Ce e fentanilul și de ce vorbește toată lumea despre el?", a:"Un opioid atât de puternic încât o cantitate mai mică decât câteva boabe de sare poate fi fatală. Se găsește tot mai des amestecat în alte droguri — pastile, pulberi, chiar lucruri vândute ca fiind altceva — fără ca cumpărătorul să știe."}},
+  {en:{q:"Is trying something just once actually a big deal?", a:"Usually the risk is about frequency and context — but with contaminated street drugs specifically, a single first try can be dangerous because there's no way to know what's actually in it."},
+   ro:{q:"Contează chiar dacă încerci ceva o singură dată?", a:"De obicei riscul ține de frecvență și context — dar în cazul drogurilor de stradă contaminate, chiar și prima încercare poate fi periculoasă, pentru că nu ai de unde să știi ce conțin de fapt."}},
+  {en:{q:"How do I say no without looking weird?", a:`Short and boring beats a big explanation — "nah, I'm good" plus changing the subject ends it faster than anything else. (See the scripts higher up on this page.)`},
+   ro:{q:"Cum spun nu fără să par ciudat(ă)?", a:"Scurt și „plictisitor” bate orice explicație lungă — „nu, sunt ok” urmat de schimbarea subiectului încheie discuția mai repede decât orice altceva. (Vezi replicile de mai sus pe pagină.)"}},
+  {en:{q:"How can I tell if my drink's been spiked?", a:"Usually you can't — most spiking drugs have no color, smell, or taste. The only real protection is never accepting a drink you didn't watch get poured."},
+   ro:{q:"Cum îmi dau seama dacă mi s-a pus ceva în băutură?", a:"De obicei nu-ți poți da seama — majoritatea substanțelor folosite nu au culoare, miros sau gust. Singura protecție reală e să nu accepți niciodată o băutură pe care nu ai văzut-o turnată."}},
+  {en:{q:"What do the warning signs of an overdose actually look like?", a:"Unresponsiveness, slow or stopped breathing, blue-tinted lips, or a seizure. If you're not sure, treat it as one — call emergency services immediately rather than waiting to see."},
+   ro:{q:"Cum arată de fapt semnele unei supradoze?", a:"Lipsa de reacție, respirație lentă sau oprită, buze cu nuanță albăstruie, sau o criză convulsivă. Dacă nu ești sigur(ă), tratează situația ca atare — sună imediat la urgențe, nu aștepta să vezi ce se întâmplă."}},
+  {en:{q:"What happens if you get caught with drugs as a minor?", a:"It genuinely depends on where you live — laws vary a lot by country and even by region. This isn't legal advice, but if you're ever in that situation, a trusted adult matters more than trying to handle it alone."},
+   ro:{q:"Ce se întâmplă dacă ești prins(ă) cu droguri fiind minor(ă)?", a:"Chiar depinde de unde locuiești — legile diferă mult de la o țară la alta și chiar de la o regiune la alta. Asta nu e sfat juridic, dar dacă ajungi vreodată în situația asta, un adult de încredere contează mai mult decât să încerci să gestionezi singur(ă)."}},
+  {en:{q:"How do I know if I'm addicted?", a:"Needing more to feel the same effect, feeling off without it, and continuing even when it's causing problems are all real signs — but this isn't something to self-diagnose alone. A doctor or counselor can actually tell, and won't judge you for asking."},
+   ro:{q:"Cum îmi dau seama dacă sunt dependent(ă)?", a:"Nevoia de tot mai mult pentru același efect, senzația că ceva lipsește fără substanță, și continuarea consumului chiar și când creează probleme sunt semne reale — dar asta nu e ceva de „autodiagnosticat” singur(ă). Un medic sau un consilier chiar poate să-ți spună, și nu te va judeca pentru că ai întrebat."}},
+  {en:{q:"Why do people even do drugs in the first place?", a:"Almost never just curiosity — usually it's about numbing something, fitting in, or filling a gap. (See the section on this higher up the page.)"},
+   ro:{q:"De ce consumă oamenii droguri, de fapt?", a:"Aproape niciodată doar din curiozitate — de obicei e vorba despre amorțirea a ceva, despre integrare, sau despre umplerea unui gol. (Vezi secțiunea despre asta mai sus pe pagină.)"}},
+  {en:{q:`Is kratom / delta-8 / some "legal" drug actually safe?`, a:`Legal doesn't mean tested or regulated the way medication is. Several substances marketed this way — kratom included — have real, documented risks despite being sold openly.`},
+   ro:{q:"Kratomul / delta-8 / vreun drog cu nume „legal” sunt chiar sigure?", a:"Legal nu înseamnă testat sau reglementat ca un medicament. Mai multe substanțe promovate așa — inclusiv kratomul — au riscuri reale, documentate, deși sunt vândute deschis."}},
+  {en:{q:"What do I do if a friend passes out at a party?", a:"Call for emergency help immediately, stay with them, and put them on their side if they're vomiting or drowsy. (See the emergency steps higher up the page.)"},
+   ro:{q:"Ce fac dacă un prieten leșină la o petrecere?", a:"Sună imediat la urgențe, rămâi lângă el/ea și așază-l/o pe o parte dacă vomită sau e somnoros(oasă). (Vezi pașii de urgență mai sus pe pagină.)"}},
+  {en:{q:"Can you actually die trying something for the first time?", a:"Yes — especially with opioids, fentanyl-contaminated substances, or inhalants, where a fatal reaction isn't about how many times someone has used before."},
+   ro:{q:"Poți chiar muri încercând ceva pentru prima dată?", a:"Da — mai ales în cazul opioidelor, al substanțelor contaminate cu fentanil sau al inhalantelor, unde o reacție fatală nu ține de câte dăți a mai folosit cineva ceva înainte."}},
+];
+const faqList = document.getElementById('faqList');
+function renderFaq(lang){
+  faqList.innerHTML='';
+  faqs.forEach((f,i)=>{
+    const d = f[lang];
+    const item = document.createElement('div');
+    item.className='faq-item';
+    item.innerHTML = `
+      <button type="button" class="faq-q" aria-expanded="false">
+        <span>${d.q}</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">${d.a}</div></div>`;
+    const btn = item.querySelector('.faq-q');
+    btn.addEventListener('click', ()=>{
+      const isOpen = item.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    faqList.appendChild(item);
   });
 }
 
@@ -949,6 +1183,7 @@ function setLang(lang){
   renderSigns(lang);
   renderEmergency(lang);
   renderHelp(lang);
+  renderFaq(lang);
   resetQuiz();
 }
 document.querySelectorAll('.langtoggle button').forEach(btn=>{
@@ -956,6 +1191,31 @@ document.querySelectorAll('.langtoggle button').forEach(btn=>{
 });
 
 setLang('en');
+
+/* ---------------- Scroll progress + back to top ---------------- */
+(function(){
+  const progressBar = document.getElementById('scrollProgress');
+  const backToTop = document.getElementById('backToTop');
+  let ticking = false;
+  function updateScrollUI(){
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+    backToTop.classList.toggle('show', scrollTop > 600);
+    ticking = false;
+  }
+  window.addEventListener('scroll', ()=>{
+    if(!ticking){
+      requestAnimationFrame(updateScrollUI);
+      ticking = true;
+    }
+  }, {passive:true});
+  updateScrollUI();
+  backToTop.addEventListener('click', ()=>{
+    window.scrollTo({top:0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  });
+})();
 </script>
 </body>
 </html>
